@@ -1,0 +1,9 @@
+// I don't know how much will it take to run the API request
+set_time_limit(0)
+start = microtime(true);
+result = executeApiCall()
+executionTime = microtime(true) - start;
+storeExecutionTime(executionTime)
+function storeExecutionTime(time) {
+   // store the data somewhere
+}
