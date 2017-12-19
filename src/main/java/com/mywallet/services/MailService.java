@@ -25,6 +25,14 @@ public class MailService {
 	private JavaMailSender javaMailSender;
 
 	private static final Logger logger = LoggerFactory.getLogger(MailService.class);
+	public MailService(){
+		/*	System.out.println("+++++++++++++++++++++++++++++++++++++"+mailService);
+	try{
+		mailService.sendMail("tanyaverma43@gmail.com", "HI Mail testing ", "bchjgdjhcjvd");
+	}catch(Exception e){
+		System.out.println("}}}}}}}}}}}}}}}}} "+e);
+	}*/
+	}
 
 	int threads = 20;
 	ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(threads);

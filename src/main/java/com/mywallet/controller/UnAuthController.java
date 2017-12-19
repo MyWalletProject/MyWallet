@@ -53,19 +53,10 @@ public class UnAuthController {
 	@Autowired
 	private RoleService roleService;
 
-	public UnAuthController(){
-		System.out.println("+++++++++++++++++++++++++++++++++$$$$$$$$$$$$$$$$$$$$$$$$$$$$$++++");
-	}
+	public UnAuthController(){}
 
 	@PostConstruct
 	public void init(){
-		System.out.println("+++++++++++++++++++++++++++++++++++++"+mailService);
-		try{
-			mailService.sendMail("tanyaverma43@gmail.com", "HI Mail testing ", "bchjgdjhcjvd");
-		}catch(Exception e){
-			System.out.println("}}}}}}}}}}}}}}}}} "+e);
-		}
-
 	}
 
 	@RequestMapping(value="/user/search",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
