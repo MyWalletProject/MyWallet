@@ -18,6 +18,9 @@ public class AddressService {
 	@Autowired
 	private AddressRepository addressRepository;
 	
+	public AddressService(){
+		logger.info("AddressService class Bean is created : ");
+	}
 	
 	public Address save(Address address){
 		logger.info("inside save method of address :");

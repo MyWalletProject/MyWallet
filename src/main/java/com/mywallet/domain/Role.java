@@ -1,10 +1,18 @@
 package com.mywallet.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -18,6 +26,7 @@ public class Role {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="role_id")
 	private Integer roleId;
 	
 	@Pattern(regexp="[a-zA-Z]+",message="Role Name only alphabets")
@@ -30,19 +39,30 @@ public class Role {
 	
 	private Boolean isActive;
 	
+	@ManyToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY)
+	@JoinTable(name="role_action",joinColumns={@JoinColumn(name="role_id")},inverseJoinColumns={@JoinColumn(name="action_id")})
+	private List<Action> actionArray = new ArrayList<Action>();
+	
 	
 	public Role(){
 		
 	}
 
-	public Role(Integer roleId, String roleName, String roleDescription, Boolean isActive) {
+	public Role( String roleName, String roleDescription, Boolean isActive) {
 		
-		this.roleId = roleId;
 		this.roleName = roleName;
 		this.roleDescription = roleDescription;
 		this.isActive = isActive;
 	}
-
+	
+	public Role(String roleName, String roleDescription, Boolean isActive, List<Action> actionArray) {
+		
+		this.roleName = roleName;
+		this.roleDescription = roleDescription;
+		this.isActive = isActive;
+		this.actionArray = actionArray;
+	}
+	
 
 	public Integer getRoleId() {
 		return roleId;
@@ -75,12 +95,19 @@ public class Role {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
-
-	@Override
-	public String toString() {
-		return "Role [roleId=" + roleId + ", roleName=" + roleName + ", roleDescription=" + roleDescription
-				+ ", isActive=" + isActive + "]";
+	
+	public List<Action> getActionArray() {
+		return actionArray;
 	}
-	
-	
+
+	public void setActionArray(List<Action> actionArray) {
+		this.actionArray = actionArray;
+	}
+
+//	@Override
+//	public String toString() {
+//		return "Role [roleId=" + roleId + ", roleName=" + roleName + ", roleDescription=" + roleDescription
+//				+ ", isActive=" + isActive + ", actionArray=" + actionArray + "]";
+//	}
+
 }

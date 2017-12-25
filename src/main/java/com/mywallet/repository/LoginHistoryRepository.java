@@ -8,7 +8,7 @@ import com.mywallet.domain.LoginHistory;
 @Repository
 public interface LoginHistoryRepository extends JpaRepository<LoginHistory, Integer> {
 
-//	Boolean deleteLoginHistory(LoginHistory loginHistory);
+//	Boolean deleteByLoginHistoryId(Integer loginHistoryId);
 	LoginHistory findByLoginHistoryId(Integer loginHistoryId);
 	
 }

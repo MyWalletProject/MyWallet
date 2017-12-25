@@ -32,6 +32,8 @@ public class MailService {
 	}catch(Exception e){
 		System.out.println("}}}}}}}}}}}}}}}}} "+e);
 	}*/
+		
+			logger.info("MailService class Bean is created : ");
 	}
 
 	int threads = 20;
@@ -69,6 +71,7 @@ public class MailService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
+//		javaMailSender.send(message);
 	}
 
 

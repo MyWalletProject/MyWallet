@@ -1,9 +1,14 @@
 package com.mywallet.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +18,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.mywallet.annotaion.ApiAction;
+import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Address;
 import com.mywallet.domain.User;
 import com.mywallet.services.AddressService;
@@ -31,19 +38,67 @@ import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
 
-
 @RestController
 @RequestMapping("/api")
 public class UserController{
 	
-	@Autowired
-	private UserService userService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class.getName());
 	
 	@Autowired
 	private AddressService addressService;
 	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private MyWalletConfig myWalletConfig;
+	
+	public UserController(){
+		logger.info("UserController class bean is created : ");
+	}
+	
+//	private static String UPLOADED_FOLDER = "D://mywallet//profilePicUpload//";
+	
+	@ApiAction
+	@PostMapping(path="/user/uploadprofile/{userId}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> upLoadProfilePicOfUser(@Valid @PathVariable ("userId") Integer userId,@RequestParam("file") MultipartFile file){
+		logger.info("Inside upLoadProfilePicOfUser api :");
+		System.out.println(file.getOriginalFilename());
+		String fileNAme=file.getOriginalFilename();
+		
+		
+		User userObj= userService.findByUserId(userId);
+		if(userObj==null){
+			return ResponseUtil.errorResp("user object not found by this userId : ", HttpStatus.NOT_FOUND);
+		}
+		
+		if(file.isEmpty()){
+			return ResponseUtil.errorResp("file is empty : ", HttpStatus.NOT_FOUND);
+		}
+		try{
+			//read and write the file to selected location
+			byte[] bytes=file.getBytes();
+			logger.info("convert into byte ----------: ");
+			Path path = Paths.get(myWalletConfig.getUpLoadProfilePic() + file.getOriginalFilename());
+			logger.info("path of file -------------- : ");
+            Files.write(path, bytes);
+            userObj.setUpLoadProfilePic(path.toString());
+            userService.save(userObj);
+		}
+		catch(IOException  exception){
+			logger.info("exception occured in file path :");
+			exception.printStackTrace();
+			return ResponseUtil.errorResp("exception occured in file path : ", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
+		reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
+		reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
+		reMap.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		return ResponseUtil.successResponse("SUCCESSFULLY USER UPLOAD THIER DATA : ", reMap, HttpStatus.OK);
+	}
 
 	@PostMapping(path="/user",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> createUser(@Valid @RequestBody User user,BindingResult bindingResult){
@@ -61,14 +116,14 @@ public class UserController{
 		}
 		catch(DataIntegrityViolationException dataIntigrity){
 
-			return new ResponseEntity<Object>(ResponseUtil.errorResponse("user Already registered with email"),HttpStatus.CONFLICT);
+			return ResponseUtil.errorResp("user Already registered with email",HttpStatus.CONFLICT);
 		}
 		if(userObj == null){
 
-			return new ResponseEntity<Object>(ResponseUtil.errorResponse("user not created"),HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("user not created",HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("user created successfully", userObj),HttpStatus.CREATED);
+		return ResponseUtil.successResponse("user created successfully", userObj,HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value="/users",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -111,13 +166,13 @@ public class UserController{
 		user = userService.save(user);
 
 		if(user == null){	
-			return new ResponseEntity<>(ResponseUtil.errorResponse("userName Not modified"),HttpStatus.NOT_MODIFIED);
+			return ResponseUtil.errorResp("userName Not modified",HttpStatus.NOT_MODIFIED);
 		}
 		Map<String,Object> reMap = ObjectMap.objectMap(user);
 		user.getAddressArray();
 		reMap.put("addressArray", ObjectMap.objectMap(user.getAddressArray()));
 
-		return new ResponseEntity<>(ResponseUtil.successResponse("User Updated Successfully", reMap),HttpStatus.OK);
+		return ResponseUtil.successResponse("User Updated Successfully", reMap,HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/users/{userName}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -132,13 +187,13 @@ public class UserController{
 
 		if(user == null){
 
-			return new ResponseEntity<>(ResponseUtil.errorResponse("User Not Exist"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("User Not Exist",HttpStatus.NOT_FOUND);
 		}
 		Map<String,Object> reMap = ObjectMap.objectMap(user);
 		user.getAddressArray();
 		reMap.put("addressArray", ObjectMap.objectMap(user.getAddressArray()));
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("User Fetched Successfully", reMap),HttpStatus.OK);
+		return ResponseUtil.successResponse("User Fetched Successfully", reMap,HttpStatus.OK);
 	}
 
 
@@ -159,13 +214,13 @@ public class UserController{
 
 		if(user == null){
 
-			return new ResponseEntity<>(ResponseUtil.errorResponse("Role Not Exist"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("Role Not Exist",HttpStatus.NOT_FOUND);
 		}
 		Map<String,Object> reMap = ObjectMap.objectMap(user);
 		user.getAddressArray();
 		reMap.put("addressArray", ObjectMap.objectMap(user.getAddressArray()));
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("User Fetched Successfully", reMap),HttpStatus.OK);
+		return ResponseUtil.successResponse("User Fetched Successfully", reMap,HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/userEmail/search",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -180,13 +235,13 @@ public class UserController{
 		User user = userService.findByEmail(email.trim());
 
 		if(user == null){
-			return new ResponseEntity<>(ResponseUtil.errorResponse("User Not Found"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("User Not Found",HttpStatus.NOT_FOUND);
 		}
 		Map<String,Object> reMap = ObjectMap.objectMap(user);
 		user.getAddressArray();
 		reMap.put("addressArray", ObjectMap.objectMap(user.getAddressArray()));
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("User Fetched Email Successfully", reMap),HttpStatus.OK);
+		return ResponseUtil.successResponse("User Fetched Email Successfully", reMap,HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/userDelete/{id}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -207,7 +262,7 @@ public class UserController{
 
 
 		if(user == null){
-			return new ResponseEntity<>(ResponseUtil.errorResponse("No user is found"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No user is found",HttpStatus.NOT_FOUND);
 		}
 
 
@@ -215,10 +270,10 @@ public class UserController{
 		deleteUser = userService.deleteUserByUserId(userId);
 
 		if(!deleteUser){
-			return new ResponseEntity<>(ResponseUtil.errorResponse("No user is id found :"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No user is id found :",HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("Role deleted Successfully",user),HttpStatus.NO_CONTENT);
+		return ResponseUtil.successResponse("Role deleted Successfully",user,HttpStatus.NO_CONTENT);
 
 	}	
 
@@ -246,23 +301,26 @@ public class UserController{
 
 		User user = userService.findByUserId(userId);
 		if(user == null){  
-			return new ResponseEntity<Object>(ResponseUtil.errorResponse("No user is found"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No user is found",HttpStatus.NOT_FOUND);
 		}		
-
+       ArrayList<Address> l = new ArrayList<>();
 		for(Integer addressId : addressIdArray){
 			Address address = addressService.findByAddressId(addressId);
 			if(address == null){
-				return new ResponseEntity<Object>(ResponseUtil.errorResponse("Address Id : "+addressId+" not exist so please send valid Id"),HttpStatus.NOT_FOUND);
+				return ResponseUtil.errorResp("Address Id : "+addressId+" not exist so please send valid Id",HttpStatus.NOT_FOUND);
 			}
 			address.setUser(user);
 			address = addressService.save(address);
-		}
+//			l.add(address);
+	   }
+//		user.setAddressArray(l);
+//		userService.save(user);
 
 		Map<String,Object> reMap = ObjectMap.objectMap(user);
 		
 		reMap.put("addressArray", ObjectMap.objectMap(user.getAddressArray()));
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("Address Successfully assign to user", reMap),HttpStatus.OK);
+		return ResponseUtil.successResponse("Address Successfully assign to user", reMap,HttpStatus.OK);
 	}
 
 

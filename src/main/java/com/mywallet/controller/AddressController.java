@@ -11,25 +11,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.domain.Address;
-import com.mywallet.domain.Role;
 import com.mywallet.services.AddressService;
 import com.mywallet.util.ResponseUtil;
 
-@Controller
+@RestController
 public class AddressController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RoleController.class.getName());
 
 	@Autowired
 	private AddressService addressService;
+	
+	public AddressController(){
+		logger.info("AddressController class bean created :");
+	}
+	
 
 	@PostMapping(path="/address", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> addAddresses(@Valid @RequestBody Address addressData,BindingResult bindingResult ){
@@ -41,9 +45,9 @@ public class AddressController {
 		}
 		Address addressObj = addressService.save(addressData);
 		if(addressObj == null){
-			return new ResponseEntity<Object>(ResponseUtil.errorResponse("no sddress is added"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("no sddress is added",HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("added all address successfully", addressObj),HttpStatus.CREATED);
+		return ResponseUtil.successResponse("added all address successfully", addressObj,HttpStatus.CREATED);
 	}
 	
 	
@@ -60,10 +64,10 @@ public class AddressController {
 		
 		if(addressObj == null){
 			
-			return new ResponseEntity<>(ResponseUtil.errorResponse("address Not Exist"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("address Not Exist",HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("address Fetched Successfully", addressObj),HttpStatus.OK);
+		return ResponseUtil.successResponse("address Fetched Successfully", addressObj,HttpStatus.OK);
 	}
 	
 	
@@ -92,9 +96,9 @@ public class AddressController {
 		address = addressService.save(address);
 
 		if(address == null){	
-			return new ResponseEntity<>(ResponseUtil.errorResponse("address Not modified"),HttpStatus.NOT_MODIFIED);
+			return ResponseUtil.errorResp("address Not modified",HttpStatus.NOT_MODIFIED);
 		}
-		return new ResponseEntity<>(ResponseUtil.successResponse("ADDRESS Updated Successfully", address),HttpStatus.OK);
+		return ResponseUtil.successResponse("ADDRESS Updated Successfully", address,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/addressDelete/{addressId}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -105,7 +109,7 @@ public class AddressController {
 		
          if(address == null){
 			
-			return new ResponseEntity<>(ResponseUtil.errorResponse("No addresss is found"),HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No addresss is found",HttpStatus.NOT_FOUND);
 		}
 		
          boolean deleteAddress = false;
@@ -113,10 +117,10 @@ public class AddressController {
 		
          if(!deleteAddress){
  			
- 			return new ResponseEntity<>(ResponseUtil.errorResponse("No address is deleted"),HttpStatus.NOT_FOUND);
+ 			return ResponseUtil.errorResp("No address is deleted",HttpStatus.NOT_FOUND);
  		}
 
-		return new ResponseEntity<Object>(ResponseUtil.successResponse("Address deleted Successfully", address),HttpStatus.NO_CONTENT);
+		return ResponseUtil.successResponse("Address deleted Successfully", address,HttpStatus.NO_CONTENT);
 
 	}
 	

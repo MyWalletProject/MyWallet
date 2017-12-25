@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -20,20 +21,27 @@ public class LoginHistory {
 		private Date loginTime;
 		
 		@ManyToOne
+		@JoinColumn(name = "user_id", nullable = true)
 	    private User user;
 	    
 	    public LoginHistory(){
 	    	
 	    }
 	    
-	    public LoginHistory(int loginHistoryId,String loginIP,String userAgent,Date loginTime){
+	    public LoginHistory(Integer loginHistoryId,String loginIP,String userAgent,Date loginTime){
 	    	this.loginHistoryId = loginHistoryId;
 			this.loginIP = loginIP;
 			this.userAgent = userAgent;
 			this.loginTime = loginTime;
 	    }
 	    
-		public LoginHistory(int loginHistoryId, String loginIP, String userAgent, Date loginTime, User user) {
+	    public LoginHistory(String loginIP,String userAgent,Date loginTime){
+			this.loginIP = loginIP;
+			this.userAgent = userAgent;
+			this.loginTime = loginTime;
+	    }
+	    
+		public LoginHistory(Integer loginHistoryId, String loginIP, String userAgent, Date loginTime, User user) {
 			
 			this.loginHistoryId = loginHistoryId;
 			this.loginIP = loginIP;
@@ -42,10 +50,10 @@ public class LoginHistory {
 			this.user = user;
 		}
 
-		public int getLoginHistoryId() {
+		public Integer getLoginHistoryId() {
 			return loginHistoryId;
 		}
-		public void setLoginHistoryId(int loginHistoryId) {
+		public void setLoginHistoryId(Integer loginHistoryId) {
 			this.loginHistoryId = loginHistoryId;
 		}
 		public String getLoginIP() {

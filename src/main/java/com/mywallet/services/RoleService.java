@@ -1,10 +1,12 @@
 package com.mywallet.services;
 
 import java.util.List;
-
+import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Role;
 import com.mywallet.repository.RoleRepository;
 
@@ -16,6 +18,30 @@ public class RoleService {
 	@Autowired
 	private RoleRepository roleRepository;
 	
+	@Autowired
+	private ActionService actionService;
+	
+	@Autowired
+	private MyWalletConfig myWalletConfig;
+	
+	
+	public RoleService(){
+		logger.info("RoleService class Bean is created : ");
+	}
+	
+	 @PostConstruct
+	 public void init(){
+		 initalizationData(myWalletConfig.getRoleName());
+	 }
+	 
+	 public void initalizationData(String[] roleNames){
+		 for(String roleName : roleNames){
+		 System.out.println("get role name from roleName array :"+roleName);
+		 Role role = new Role(roleName,"this is a role",true);
+	     this.save(role);
+		 }
+	 }
+	 
 	public Role save(Role role){
 		logger.info("inside save method of role :");
 		try{

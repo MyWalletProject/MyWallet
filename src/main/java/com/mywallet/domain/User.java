@@ -1,6 +1,7 @@
 package com.mywallet.domain;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -47,14 +48,8 @@ public class User {
 	
 	private boolean active=false;
 	
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
+	private String upLoadProfilePic; // path = "D:/mywallet/profilePicUpload/";
+	
 	private boolean isEmailVerified=false;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
@@ -71,6 +66,11 @@ public class User {
 		
 	}
 	
+	public User(String upLoadProfilePic){
+		this.upLoadProfilePic=upLoadProfilePic;
+	}
+	
+	
     public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified){
 		this.userName=userName;
 		this.email=email;
@@ -79,8 +79,8 @@ public class User {
 		this.isEmailVerified=isEmailVerified;
 	}
     
-    public User(Integer userId,String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray){
-		this.userId=userId;
+    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray){
+		
 		this.userName=userName;
 		this.email=email;
 		this.password=password;
@@ -92,6 +92,22 @@ public class User {
 	}
 	
     
+    
+    public String getUpLoadProfilePic() {
+		return upLoadProfilePic;
+	}
+
+	public void setUpLoadProfilePic(String upLoadProfilePic) {
+		this.upLoadProfilePic = upLoadProfilePic;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
 	public List<LoginHistory> getLoginHistoryArray() {
 		return loginHistoryArray;
@@ -133,8 +149,6 @@ public class User {
 		this.password = password;
 	}
 
-	
-
 	public boolean isEmailVerified() {
 		return isEmailVerified;
 	}
@@ -158,6 +172,17 @@ public class User {
 	public void setAddressArray(List<Address> addressArray) {
 		this.addressArray = addressArray;
 	}
+	
+	
+	public String getlastLogin(){
+		LoginHistory loginHistory;
+		if (this.loginHistoryArray.size() == 0 )
+			loginHistory = null;
+		else
+			loginHistory = loginHistoryArray.get(loginHistoryArray.size()-1);
+		return  loginHistory == null ? null : loginHistory.getLoginTime().toString();
+		
+	}
 
 	@Override
 	public String toString() {
@@ -166,6 +191,5 @@ public class User {
 				+ addressArray + ", loginHistoryArray=" + loginHistoryArray + "]";
 	}
 
-    
 	
 }

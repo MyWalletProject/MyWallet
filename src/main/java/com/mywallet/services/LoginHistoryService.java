@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.mywallet.domain.LoginHistory;
@@ -12,11 +13,14 @@ import com.mywallet.repository.LoginHistoryRepository;
 @Service
 public class LoginHistoryService {
 	
-	private final static Logger logger = Logger.getLogger(LoginHistoryService.class.getName());
+	private final static Logger logger = Logger.getLogger(LoginHistoryService.class);
 	
 	@Autowired
 	private LoginHistoryRepository logHistoryRepository;
 	
+	public LoginHistoryService(){
+		logger.info("LoginHistoryService class Bean is created : ");
+	}
 	
 	public LoginHistory save(LoginHistory loginHistory){
 		logger.info("inside save method of LoginHistory :");
@@ -50,17 +54,17 @@ public class LoginHistoryService {
 		}
 	}
 	
-	/*public Boolean deleteLoginHistory(LoginHistory loginHistory){
+	/*public Boolean deleteByLoginHistoryId(Integer loginHistoryId){
 		logger.info("inside delete Login History method of LoginHistory :");
 		try {
-			 logHistoryRepository.deleteLoginHistory(loginHistory);
+			 logHistoryRepository.deleteByLoginHistoryId(loginHistoryId);
 			 return true;
 		} catch (Exception exception) {
-			logger.error("error occured in fetching login History object by id from database :"+exception);
+			logger.error("error occured in delete login History object by id from database :"+exception);
 			return false;
 		}
-	}
-	*/
+	}*/
+	
 	
 
 }
