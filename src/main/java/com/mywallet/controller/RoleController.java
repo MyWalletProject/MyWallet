@@ -160,7 +160,7 @@ public class RoleController {
 		}
 		
 		Map<String, Object> map= new HashMap<String, Object>();
-		map.put("roleArray : ",ObjectMap.objectMap(roleArray));
+		map.put("roleArray",ObjectMap.objectMap(roleArray));
       
 		return ResponseUtil.successResponse("Successfully all roles are get : ", map, HttpStatus.OK);
 	}
