@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mywallet.annotaion.ApiAction;
 import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Address;
+import com.mywallet.domain.LoginHistory;
 import com.mywallet.domain.User;
 import com.mywallet.services.AddressService;
 import com.mywallet.services.UserService;
@@ -66,7 +69,6 @@ public class UserController{
 		logger.info("Inside upLoadProfilePicOfUser api :");
 		System.out.println(file.getOriginalFilename());
 		String fileNAme=file.getOriginalFilename();
-		
 		
 		User userObj= userService.findByUserId(userId);
 		if(userObj==null){
@@ -140,7 +142,46 @@ public class UserController{
 
 		return new ResponseEntity<Object>(userArray,HttpStatus.OK);
 	}
-
+	
+	
+	
+	@RequestMapping(value="/user/profile/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> getUsersProfileById(@PathVariable ("userId") Integer userId){
+		
+		logger.info("Inside getUsersProfileById api :");
+		
+		User userObj= userService.findByUserId(userId);
+		if(userObj==null){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
+		}
+		
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified");
+		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
+		Collections.sort(userObj.getLoginHistoryArray(), new Comparator<LoginHistory>() {
+			  public int compare(LoginHistory o1, LoginHistory o2) {
+			      return o2.getLoginTime().compareTo(o1.getLoginTime());
+			  }
+			});
+		map.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		return  ResponseUtil.successResponse("We successfully get all users profile data : ",map, HttpStatus.OK);
+	}
+	
+	
+	
+	@RequestMapping(value="/users/roleName/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> getUserByRoleName(@PathVariable ("userId") Integer userId){
+		logger.info("Inside getUsersProfileById api :");
+		
+		User userObj= userService.findByUserId(userId);
+		if(userObj==null){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
+		}
+		
+		
+		return ResponseUtil.successResponse("successfully get user by there role name : ", "", HttpStatus.OK);
+	}
+	
 
 	@RequestMapping(value="/userUpdate/{userName}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> modifyObjByUserName(@Valid @PathVariable("userName") String userName,@RequestBody User userData,BindingResult bindingResult){

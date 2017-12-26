@@ -1,8 +1,14 @@
 package com.mywallet.config;
 
+import javax.servlet.Filter;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.mywallet.security.SimpleCORSFilter;
+
 
 @Configuration
 public class MyWalletConfig {
@@ -40,6 +46,16 @@ public class MyWalletConfig {
 	
 	public String[] getControllerPackages(){
 		return (controllerPackages!=null) ? controllerPackages : new String[0];
+	}
+	/**
+	 * This Bean is used to register Global CORS filter 
+	 * in Spring Context. Order of this filter is highest
+	 * in kyc.
+	 */
+	@Bean
+	public Filter corsfilter(){
+		logger.debug("Creating global SimpleCORSFilter");
+		return new SimpleCORSFilter();
 	}
 	
 }

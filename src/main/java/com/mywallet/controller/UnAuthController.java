@@ -86,7 +86,7 @@ public class UnAuthController {
 		User userObj=userService.findByEmailAndPassword(reqUserLogin.getEmail(), reqUserLogin.getPassword());
 
 		if(userObj==null){
-			return ResponseUtil.errorResp("User not exist, invalid login credenstial with password or email incorrect",HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("User not exist, invalid login credenstial with password or email incorrect",HttpStatus.NOT_FOUND);
 		}
 
 		Map<String,Object> data=ObjectMap.objectMap(userObj,"userId~email~active~isEmailVerified");
@@ -221,7 +221,7 @@ public class UnAuthController {
 		logger.info("getting user object by id :"+userObj);
 
 		if(userObj == null){
-			return ResponseUtil.errorResp("user object is null found by user id",HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("user object is null found by user id",HttpStatus.NOT_FOUND);
 		}
 
 		logger.info("same password -----:"+userObj.getPassword());

@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class LoginHistory {
+public class LoginHistory implements Comparable<LoginHistory>{
 
 	    @Id
 	    @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -80,6 +80,15 @@ public class LoginHistory {
 		public void setUser(User user) {
 			this.user = user;
 		}
+		
+		@Override
+		  public int compareTo(LoginHistory loginHistory) {
+		    if (getLoginTime() == null || loginHistory.getLoginTime() == null)
+		      return 0;
+		    return getLoginTime().compareTo(loginHistory.getLoginTime());
+		  }
+		
+		
 		@Override
 		public String toString() {
 			return "LoginHistory [loginHistoryId=" + loginHistoryId + ", loginIP=" + loginIP + ", userAgent="

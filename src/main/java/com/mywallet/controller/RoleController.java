@@ -144,17 +144,28 @@ public class RoleController {
 
 	}
 	
-	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+/*	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllRoles(){
 
-		List<Role> roles = roleService.getAllRolefromDB();
-		Map<String, Object> map = new HashMap<String, Object>();
-		for(Role role : roles){
-			 map =ObjectMap.objectMap(role);
+		List<Role> rolesObj = roleService.getAllRolefromDB();
+		
+		if(rolesObj == null){
+			return ResponseUtil.errorResp("No Roles object is found from database : ", HttpStatus.NOT_FOUND);
 		}
+		
+		ArrayList<Role> roleArray = new ArrayList<Role>();
+		for(Role roleObj : rolesObj){
+			 roleArray.add(roleObj);
+		}
+		
+		
+		
+//		Map<String, Object> map=ObjectMap.objectMap(roleArray);
+//		map.put("actionArray ", ObjectMap.objectMap(roleObj.getActionArray()));
+		
 
-		return new ResponseEntity<Object>(map,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully all roles are get : ", map, HttpStatus.OK);
 	}
-	
+*/	
 
 }
