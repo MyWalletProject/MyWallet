@@ -13,7 +13,8 @@ public class ResponseUtil {
 		
 			response.put("data",data);
 			response.put("message",message);
-			response.put("error",true);
+			response.put("success",true);
+			response.put("error",false);
 			
 			return new ResponseEntity<Object>(response,httpStatus);
 	 }
@@ -24,8 +25,9 @@ public class ResponseUtil {
     	
       	responseMap.put("data",null);
       	responseMap.put("message",message);
-      	responseMap.put("success",true);
-    	
+      	responseMap.put("error",true);
+      	responseMap.put("success",false);
+      	
     	return new ResponseEntity<Object>(responseMap,httpStatus);
     	
     } 

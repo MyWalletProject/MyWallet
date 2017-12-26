@@ -12,14 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.Action;
 import com.mywallet.domain.Role;
@@ -29,7 +28,7 @@ import com.mywallet.services.RoleService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
-@Controller
+@RestController
 public class RoleController {
 	
 	@Autowired
@@ -88,10 +87,9 @@ public class RoleController {
 	@PostMapping(path="/role", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> createRoles(@Valid @RequestBody Role roleDta,BindingResult bindingResult ){
 		logger.info("inside create role  api :");
-		Map<String, Object> map = new HashMap<String, Object>();
+		
 		if(bindingResult.hasErrors()){
-			map.put("Error Message " , bindingResult.getFieldError().getDefaultMessage());
-			return new ResponseEntity<Object>(map,HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
 		}
 		Role roleObj = roleService.save(roleDta);
 		if(roleObj == null){
@@ -105,7 +103,7 @@ public class RoleController {
 	public ResponseEntity<Object> getByRoleName(@PathVariable String roleName){
 
 		if(roleName == null || roleName.length() == 0){
-			return new ResponseEntity<Object>("role name Not Null or Empty",HttpStatus.BAD_REQUEST);
+			return  ResponseUtil.errorResp("role name Not Null or Empty",HttpStatus.BAD_REQUEST);
 		}
 
 		logger.info("RolenName send by UI : "+roleName);
@@ -144,9 +142,10 @@ public class RoleController {
 
 	}
 	
-/*	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllRoles(){
 
+		
 		List<Role> rolesObj = roleService.getAllRolefromDB();
 		
 		if(rolesObj == null){
@@ -154,18 +153,17 @@ public class RoleController {
 		}
 		
 		ArrayList<Role> roleArray = new ArrayList<Role>();
+		
 		for(Role roleObj : rolesObj){
+			
 			 roleArray.add(roleObj);
 		}
 		
-		
-		
-//		Map<String, Object> map=ObjectMap.objectMap(roleArray);
-//		map.put("actionArray ", ObjectMap.objectMap(roleObj.getActionArray()));
-		
-
+		Map<String, Object> map= new HashMap<String, Object>();
+		map.put("roleArray : ",ObjectMap.objectMap(roleArray));
+      
 		return ResponseUtil.successResponse("Successfully all roles are get : ", map, HttpStatus.OK);
 	}
-*/	
+
 
 }

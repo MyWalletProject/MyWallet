@@ -1,10 +1,6 @@
 package com.mywallet.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +34,9 @@ public class AddressController {
 	@PostMapping(path="/address", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> addAddresses(@Valid @RequestBody Address addressData,BindingResult bindingResult ){
 		logger.info("inside add address  api :");
-		Map<String, Object> map = new HashMap<String, Object>();
+		
 		if(bindingResult.hasErrors()){
-			map.put("Error Message " , bindingResult.getFieldError().getDefaultMessage());
-			return new ResponseEntity<Object>(map,HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
 		}
 		Address addressObj = addressService.save(addressData);
 		if(addressObj == null){
@@ -55,7 +50,7 @@ public class AddressController {
 	public ResponseEntity<Object> getByAddressId(@PathVariable Integer addressId){
 
 		if(addressId == null ){
-			return new ResponseEntity<Object>("addressId Not Null ",HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp("addressId Not Null ",HttpStatus.BAD_REQUEST);
 		}
 
 		logger.info("addressId send by UI : "+addressId);
@@ -81,12 +76,12 @@ public class AddressController {
 			addressId = Integer.parseInt(id);
 		}
 		catch(Exception e){
-			return new ResponseEntity<>("addressId Not Integer",HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp("addressId Not Integer Exception occure "+e,HttpStatus.BAD_REQUEST);
 		}
 
 		Address address = addressService.findByAddressId(addressId);
 		if(address == null){
-			return new ResponseEntity<>("No address is found",HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No address is found",HttpStatus.NOT_FOUND);
 		}
 
 		address.setCountry(addressrData.getCountry());

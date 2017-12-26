@@ -2,19 +2,12 @@ package com.mywallet.services;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
-import com.mywallet.controller.UserController;
 import com.mywallet.domain.User;
 
 @Service

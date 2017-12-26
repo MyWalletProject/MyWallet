@@ -3,34 +3,26 @@ package com.mywallet.controller;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.Address;
 import com.mywallet.domain.LoginHistory;
 import com.mywallet.domain.Role;
-
 import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_UserLogin;
 import com.mywallet.services.AddressService;
@@ -105,13 +97,14 @@ public class UnAuthController {
 		}
 		catch(Exception exception){
 			logger.error("error occured while saving the loginHistory :"+exception);
+			return ResponseUtil.errorResp("error occured while saving the loginHistory :"+exception, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseUtil.successResponse("User successfully login.",data,HttpStatus.OK);
 	}
 
 	@ApiAction
-	@PostMapping(path="/userDB",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(path="/signup",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> signupUser( @RequestBody Map<String,Object> signupRequestMap){
 
 		logger.info("Inside signup User api :"+signupRequestMap);
@@ -123,6 +116,10 @@ public class UnAuthController {
 		}
 
 		String email=(String) signupRequestMap.get("email");
+		if(email == null){
+			return ResponseUtil.errorResp("key not exist email in request map ",HttpStatus.BAD_REQUEST);
+		}
+		
 		String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
 		regex.matches("email");
 
@@ -145,14 +142,13 @@ public class UnAuthController {
 		logger.info("getting role Object ;;;;;;..... :"+roleObj);
 
 		if(roleObj == null){
-			return ResponseUtil.errorResp("No role is found by this key roleName:",HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("No role is found by this key roleName:",HttpStatus.NOT_FOUND);
 		}
 
 		User userObj = userService.findByEmail(email);
 		//		userService.findByRole(roleObj);
 
 		logger.info(" user Object is null ---"+userObj);
-
 
 		if (userObj != null) {
 			return ResponseUtil.errorResp("Oops!  There is already a user registered with the email provided. ",HttpStatus.NOT_FOUND);
@@ -167,6 +163,9 @@ public class UnAuthController {
 		logger.info("getting user new Object"+newUser);
 
 		String country=(String) signupRequestMap.get("country");
+		if(country == null){
+			return ResponseUtil.errorResp("key not exist country in request map ",HttpStatus.BAD_REQUEST);
+		}
 
 		logger.info("getting country in address"+country);
 
@@ -182,7 +181,7 @@ public class UnAuthController {
 		System.out.println("length is :"+newUser.getAddressArray().size());
 
 		if(addressObj == null) {
-			return ResponseUtil.errorResp("address object not saved",HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("address object not saved",HttpStatus.NOT_FOUND);
 		}
 
 		mailService.userRegisterMail(newUser);
@@ -197,7 +196,6 @@ public class UnAuthController {
 	@RequestMapping(value="/updatePassword/{userId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> passwordUpdateByUser(@PathVariable ("userId") Integer id,@RequestBody Map<String, String> requestMap){
 		logger.info("inside passwordResetByUser api : "+requestMap);
-
 
 		String oldPassword =  requestMap.get("oldPassword");
 		if(oldPassword==null){
@@ -227,7 +225,7 @@ public class UnAuthController {
 		logger.info("same password -----:"+userObj.getPassword());
 
 		if((userObj.getPassword()).equals(oldPassword)){
-			return new ResponseEntity<Object>("both password are same in which user registered : ",HttpStatus.BAD_REQUEST);
+			return  ResponseUtil.errorResp("both password are same in which user registered : ",HttpStatus.BAD_REQUEST);
 		}
 
 		logger.info("userObj.getPassword()).equals(oldPassword)-----:"+userObj.getPassword());

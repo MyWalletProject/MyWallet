@@ -91,7 +91,7 @@ public class UserController{
 		catch(IOException  exception){
 			logger.info("exception occured in file path :");
 			exception.printStackTrace();
-			return ResponseUtil.errorResp("exception occured in file path : ", HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseUtil.errorResp("exception occured in file path : "+exception, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
@@ -105,13 +105,12 @@ public class UserController{
 	@PostMapping(path="/user",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> createUser(@Valid @RequestBody User user,BindingResult bindingResult){
 		logger.info("Inside createUser api :");
-		Map<String ,Object> map = new HashMap<String ,Object>();
+		
+		
 		if(bindingResult.hasErrors()){
-			System.out.println("I found errors");
-			System.out.println("Error map "+ObjectMap.objectMap(bindingResult.getFieldError()));
-			map.put("Error Message " , bindingResult.getFieldError().getDefaultMessage());
-			return new ResponseEntity<Object>(map, HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
 		}
+		
 		User	userObj = null;
 		try{
 			userObj = userService.save(user);
@@ -120,6 +119,7 @@ public class UserController{
 
 			return ResponseUtil.errorResp("user Already registered with email",HttpStatus.CONFLICT);
 		}
+		
 		if(userObj == null){
 
 			return ResponseUtil.errorResp("user not created",HttpStatus.INTERNAL_SERVER_ERROR);
@@ -140,7 +140,7 @@ public class UserController{
 			userArray.add(reMap);
 		}
 
-		return new ResponseEntity<Object>(userArray,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully get all users : ",userArray,HttpStatus.OK);
 	}
 	
 	
@@ -295,7 +295,7 @@ public class UserController{
 			userId = Integer.parseInt(id);
 		}
 		catch(Exception e){
-			return new ResponseEntity<>("userIdNotInteger",HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp("userIdNotInteger"+e,HttpStatus.BAD_REQUEST);
 		}
 
 		User user = userService.findByUserId(userId);
@@ -327,7 +327,7 @@ public class UserController{
 			userId = Integer.parseInt(id);
 		}
 		catch(Exception e){
-			return new ResponseEntity<Object>("userIdNotInteger",HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp("userIdNotInteger"+e,HttpStatus.BAD_REQUEST);
 		}
 		List<Integer> addressIdArray =(List<Integer>) requestMap.get("addressIdArray");
 		System.out.println("getting from addressIdArray :");
