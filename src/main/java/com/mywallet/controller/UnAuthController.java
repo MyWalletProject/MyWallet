@@ -193,7 +193,7 @@ public class UnAuthController {
 	}
 
 	@ApiAction
-	@RequestMapping(value="/updatePassword/{userId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/password/{userId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> passwordUpdateByUser(@PathVariable ("userId") Integer id,@RequestBody Map<String, String> requestMap){
 		logger.info("inside passwordResetByUser api : "+requestMap);
 
@@ -213,7 +213,7 @@ public class UnAuthController {
 		if(oldPassword.equals(newPassword)){
 			return ResponseUtil.errorResp("oop's...old password matches to new password.Please change the new password :",HttpStatus.OK);
 		}
-
+		
 		User userObj =userService.findByUserId(id);
 
 		logger.info("getting user object by id :"+userObj);
@@ -224,18 +224,18 @@ public class UnAuthController {
 
 		logger.info("same password -----:"+userObj.getPassword());
 
-		if((userObj.getPassword()).equals(oldPassword)){
-			return  ResponseUtil.errorResp("both password are same in which user registered : ",HttpStatus.BAD_REQUEST);
+		if(!((userObj.getPassword()).equals(oldPassword))){
+			return  ResponseUtil.errorResp("password are not same as by which user registered : ",HttpStatus.BAD_REQUEST);
 		}
 
 		logger.info("userObj.getPassword()).equals(oldPassword)-----:"+userObj.getPassword());
 
-		if (!(oldPassword.equals(newPassword))){
-			userObj.setPassword(newPassword);
-			userObj =	userService.save(userObj);
-			return ResponseUtil.successResponse("user new password set successfully ",newPassword,HttpStatus.OK);
+		if (oldPassword.equals(newPassword)){
+			return  ResponseUtil.errorResp("password are not same as by which user registered : ",HttpStatus.BAD_REQUEST);
 		}
 
+		userObj.setPassword(newPassword);
+		userObj =	userService.save(userObj);
 		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
 		reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
 		reMap.put("role", ObjectMap.objectMap(userObj.getRole()));

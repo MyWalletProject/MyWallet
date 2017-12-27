@@ -23,6 +23,7 @@ import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.Action;
 import com.mywallet.domain.Role;
 import com.mywallet.domain.req.Req_AssignActionToUser;
+import com.mywallet.domain.req.Req_RoleUpdate;
 import com.mywallet.services.ActionService;
 import com.mywallet.services.RoleService;
 import com.mywallet.util.ObjectMap;
@@ -119,7 +120,7 @@ public class RoleController {
 	}
 	
 
-	@RequestMapping(value="/roleDelete/{roleId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/role/{roleId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> rolesDeleteByRoleId(@PathVariable Integer roleId){
 		
 		Role role = roleService.findByRoleId(roleId);
@@ -127,7 +128,7 @@ public class RoleController {
 		
          if(role == null){
 			
-			return ResponseUtil.errorResp("No role is found",HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No role object is found",HttpStatus.NOT_FOUND);
 		}
 		
          boolean deleteRole = false;
@@ -165,5 +166,44 @@ public class RoleController {
 		return ResponseUtil.successResponse("Successfully all roles are get : ", map, HttpStatus.OK);
 	}
 
+	@ApiAction
+	@RequestMapping(value="/role/{roleId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> roleUpdateById(@PathVariable ("roleId") Integer roleId, @Valid @RequestBody Req_RoleUpdate role,BindingResult bindingResult){
+		logger.info("inside roleUpdateById  api :");
+		
+		Role roleObj = roleService.findByRoleId(roleId);	
+		if(roleObj == null){
+			return ResponseUtil.errorResp("No Roles object is found from database : ", HttpStatus.NOT_FOUND);
+		}
+		
+        
+		if(bindingResult.hasErrors()){
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
+		}
+		
+		logger.info(" get role name :");
+		
+		String roleName = role.getRoleName();
+		if(roleName==null || roleName.equals("") ){
+			return ResponseUtil.errorResp("Role name can not be null or empty : ", HttpStatus.NOT_FOUND);
+		}
+		
+		logger.info(" get role description :");
+		String roleDescription = role.getRoleDescription();
+		if(roleDescription==null){
+			return ResponseUtil.errorResp("Role Description can not be null : ", HttpStatus.NOT_FOUND);
+		}
+	
+		roleObj.setRoleName(roleName);
+		roleObj.setRoleDescription(roleDescription); 
+		roleObj.setIsActive(role.getIsActive());
+		roleService.save(roleObj);
 
+		Map<String, Object> map=ObjectMap.objectMap(roleObj);
+
+		return ResponseUtil.successResponse("Successfully updated role : ", map, HttpStatus.OK);
+	}
+	
+	
+	
 }

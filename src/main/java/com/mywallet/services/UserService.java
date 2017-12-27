@@ -159,7 +159,7 @@ public class UserService {
 	}
 
 	public User findByUserNameAndIsActive(String userName, Boolean isActive) {
-		logger.info("inside findByRoleNameAndIsActive method :");
+		logger.info("inside findByRoleNameAndActive method :");
 		try{
 			return	userRepository.findByUserNameAndActive(userName,isActive);
 		}

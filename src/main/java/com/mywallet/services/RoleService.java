@@ -48,7 +48,7 @@ public class RoleService {
 		return roleRepository.save(role);
 		}
 		catch(Exception exception){
-			logger.error("save role in database :");
+			logger.error("Exception occur while save role in database :"+exception);
 			return null;
 		}
 	}
@@ -58,7 +58,7 @@ public class RoleService {
 		try{
 			return roleRepository.findAll();	
 		}catch (Exception e) {
-			logger.error("Exception occur while fetching all roles : "+e);
+			logger.error("Exception occur while fetching all roles from database : "+e);
 			return null;
 		}
 	}
@@ -69,7 +69,7 @@ public class RoleService {
 		return roleRepository.saveAndFlush(role);
 		}
 		catch(Exception exception){
-			logger.error("save role in database :");
+			logger.error("exception occured  in persistRole in database :"+exception);
 			return null;
 		}
 	}
@@ -80,7 +80,7 @@ public class RoleService {
 		return roleRepository.findByRoleName(roleName);
 		}
 		catch(Exception exception){
-			logger.error("save role in database :");
+			logger.error("exception occured in find By RoleId from database :"+exception);
 			return null;
 		}
 	}
@@ -91,7 +91,7 @@ public class RoleService {
 		return roleRepository.findByRoleId(roleId);
 		}
 		catch(Exception exception){
-			logger.error("save role in database :");
+			logger.error("exception occured in find By RoleName from database :"+exception);
 			return null;
 		}
 	}
@@ -102,7 +102,7 @@ public class RoleService {
 		return roleRepository.deleteRoleByRoleId(roleId);
 		}
 		catch(Exception exception){
-		logger.error("delete role by role id in database :");
+		logger.error("delete role by role id in database :"+exception);
 			return null;
 		}
 	}

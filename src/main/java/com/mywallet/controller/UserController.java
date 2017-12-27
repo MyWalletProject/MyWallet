@@ -35,6 +35,7 @@ import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Address;
 import com.mywallet.domain.LoginHistory;
 import com.mywallet.domain.User;
+import com.mywallet.domain.req.Req_ProfileUpdate;
 import com.mywallet.services.AddressService;
 import com.mywallet.services.UserService;
 import com.mywallet.util.ObjectMap;
@@ -143,8 +144,6 @@ public class UserController{
 		return ResponseUtil.successResponse("Successfully get all users : ",userArray,HttpStatus.OK);
 	}
 	
-	
-	
 	@RequestMapping(value="/user/profile/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getUsersProfileById(@PathVariable ("userId") Integer userId){
 		
@@ -167,7 +166,46 @@ public class UserController{
 		return  ResponseUtil.successResponse("We successfully get all users profile data : ",map, HttpStatus.OK);
 	}
 	
-	
+	@RequestMapping(value="/user/profile/{userId}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> modifyObjByUserId(@PathVariable("userId") Integer userId,@Valid @RequestBody Req_ProfileUpdate userProfileUpdate,BindingResult bindingResult){
+
+		logger.info("Inside MODIFY ROLE BY USING ROLE ID :");
+
+		if(bindingResult.hasErrors()){
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
+		}
+		
+		User userObj =userService.findByUserId(userId);
+		
+		if(userObj==null){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
+		}
+		
+		String userName = userProfileUpdate.getUserName();
+		if(userName==null || userName.equals("") ){
+			return ResponseUtil.errorResp("user name can not be null or empty : ", HttpStatus.NOT_FOUND);
+		}
+		
+		String email = userProfileUpdate.getEmail();
+		if(email==null || email.equals("") ){
+			return ResponseUtil.errorResp("user email can not be null or empty : ", HttpStatus.NOT_FOUND);
+		}
+		
+		Boolean isEmailVerified =userProfileUpdate.isEmailVerified();
+		
+		List<Address> addressArray = userProfileUpdate.getAddressArray();
+		
+		userObj.setUserName(userName);
+		userObj.setEmail(email);
+		userObj.setEmailVerified(isEmailVerified);
+		userObj.setAddressArray(addressArray);
+		userService.save(userObj);
+		
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified");
+		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
+		
+		return  ResponseUtil.successResponse("successfully modified user profile data : ",map, HttpStatus.OK);
+	}
 	
 	@RequestMapping(value="/users/roleName/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getUserByRoleName(@PathVariable ("userId") Integer userId){
@@ -183,21 +221,18 @@ public class UserController{
 	}
 	
 
-	@RequestMapping(value="/userUpdate/{userName}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/user/{userName}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> modifyObjByUserName(@Valid @PathVariable("userName") String userName,@RequestBody User userData,BindingResult bindingResult){
 
 		logger.info("Inside MODIFY ROLE BY USING ROLE NAME :");
 
-		Map<String, Object> map = new HashMap<String, Object>();
 		if(bindingResult.hasErrors()){
-			logger.info("I found errors");
-			map.put("ErrorMessage", ((DefaultMessageSourceResolvable) bindingResult.getFieldErrors()).getDefaultMessage());
-			return new ResponseEntity<Object>(map, HttpStatus.BAD_REQUEST);
-		}
-
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
+		} 
+		
 		User user = userService.findByUserName(userName);
 		if(user == null){
-			return new ResponseEntity<>("No user is found",HttpStatus.NOT_FOUND);
+			return ResponseUtil.errorResp("No user object is found",HttpStatus.NOT_FOUND);
 		}
 
 		user.setUserName(userData.getUserName());
@@ -365,5 +400,4 @@ public class UserController{
 	}
 
 
-	
 }

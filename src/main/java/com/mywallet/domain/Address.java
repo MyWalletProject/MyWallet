@@ -126,11 +126,11 @@ public class Address {
 		this.addressLine = addressLine;
 	}
 
-	@Override
-	public String toString() {
-		return "Address [addressId=" + addressId + ", country=" + country + ", state=" + state + ", city=" + city
-				+ ", street=" + street + ", addressLine=" + addressLine + ", user=" + user + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "Address [addressId=" + addressId + ", country=" + country + ", state=" + state + ", city=" + city
+//				+ ", street=" + street + ", addressLine=" + addressLine + ", user=" + user + "]";
+//	}
 
 	
 

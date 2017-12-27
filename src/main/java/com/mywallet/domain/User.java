@@ -33,6 +33,7 @@ public class User {
 	@Pattern(regexp="[a-zA-Z]+",message="UserName only alphabets")
 	@Size(min=3,message="userName must be atleast 3 characters !")
 	@NotNull(message="userName cannot be null")
+	@NotEmpty(message="userName can not be empty")
 	@Column(name = "user_name",unique=true)
 	private String userName;
 	
@@ -184,12 +185,12 @@ public class User {
 		
 	}
 
-	@Override
-	public String toString() {
-		return "User [userId=" + userId + ", userName=" + userName + ", email=" + email + ", password=" + password
-				+ ", active=" + active + ", isEmailVerified=" + isEmailVerified + ", role=" + role + ", addressArray="
-				+ addressArray + ", loginHistoryArray=" + loginHistoryArray + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "User [userId=" + userId + ", userName=" + userName + ", email=" + email + ", password=" + password
+//				+ ", active=" + active + ", isEmailVerified=" + isEmailVerified + ", role=" + role + ", addressArray="
+//				+ addressArray + ", loginHistoryArray=" + loginHistoryArray + "]";
+//	}
 
 	
 }
