@@ -156,7 +156,7 @@ public class UnAuthController {
 
 		logger.info("getting user Object"+userObj);
 
-		User newUser = new User(userName,email,password,true,false);
+		User newUser = new User(userName,email,password,true,false,false);
 		newUser.setRole(roleObj);
 		newUser = userService.save(newUser);
 

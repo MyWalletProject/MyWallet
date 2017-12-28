@@ -32,12 +32,13 @@ public class Role {
 	@Pattern(regexp="[a-zA-Z]+",message="Role Name only alphabets")
 	@Size(min=3,message="role Name must be atleast 3 characters !")
 	@NotNull(message="role Name cannot be null")
-	@Column(unique = true)
+	@Column(unique=true)
 	private String  roleName;
 	
 	private String  roleDescription;
 	
 	private Boolean isActive;
+	
 	
 	@ManyToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinTable(name="role_action",joinColumns={@JoinColumn(name="role_id")},inverseJoinColumns={@JoinColumn(name="action_id")})
@@ -61,8 +62,8 @@ public class Role {
 		this.roleDescription = roleDescription;
 		this.isActive = isActive;
 		this.actionArray = actionArray;
+		
 	}
-	
 
 	public Integer getRoleId() {
 		return roleId;

@@ -5,7 +5,6 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Role;
 import com.mywallet.repository.RoleRepository;
@@ -17,9 +16,6 @@ public class RoleService {
 	
 	@Autowired
 	private RoleRepository roleRepository;
-	
-	@Autowired
-	private ActionService actionService;
 	
 	@Autowired
 	private MyWalletConfig myWalletConfig;
@@ -96,14 +92,6 @@ public class RoleService {
 		}
 	}
 	
-	public Boolean deleteRoleByRoleId(Integer roleId){
-		logger.info("inside delete Role By RoleId method :");
-		try{
-		return roleRepository.deleteRoleByRoleId(roleId);
-		}
-		catch(Exception exception){
-		logger.error("delete role by role id in database :"+exception);
-			return null;
-		}
-	}
+
+
 }

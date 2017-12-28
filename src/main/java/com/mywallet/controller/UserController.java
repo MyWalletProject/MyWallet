@@ -15,7 +15,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,7 +42,6 @@ import com.mywallet.util.ResponseUtil;
 
 
 @RestController
-@RequestMapping("/api")
 public class UserController{
 	
 	
@@ -69,7 +67,6 @@ public class UserController{
 	public ResponseEntity<Object> upLoadProfilePicOfUser(@Valid @PathVariable ("userId") Integer userId,@RequestParam("file") MultipartFile file){
 		logger.info("Inside upLoadProfilePicOfUser api :");
 		System.out.println(file.getOriginalFilename());
-		String fileNAme=file.getOriginalFilename();
 		
 		User userObj= userService.findByUserId(userId);
 		if(userObj==null){
@@ -372,14 +369,12 @@ public class UserController{
 		}
 
 		logger.info("Address ID Array from request : "+addressIdArray);
-		List<Address> addressArray = new ArrayList<Address>();
-
 
 		User user = userService.findByUserId(userId);
 		if(user == null){  
 			return ResponseUtil.errorResp("No user is found",HttpStatus.NOT_FOUND);
 		}		
-       ArrayList<Address> l = new ArrayList<>();
+//       ArrayList<Address> l = new ArrayList<>();
 		for(Integer addressId : addressIdArray){
 			Address address = addressService.findByAddressId(addressId);
 			if(address == null){
@@ -399,5 +394,35 @@ public class UserController{
 		return ResponseUtil.successResponse("Address Successfully assign to user", reMap,HttpStatus.OK);
 	}
 
+	@ApiAction
+	@RequestMapping(value="/user/iskycverified/{userId}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> modifyIsKYCVerified(@PathVariable("userId") Integer userId,@Valid @RequestBody Map<String , Object> requestMap,BindingResult bindingResult){
+
+		logger.info("Inside MODIFY iskycverified KEY BY USING ROLE ID :");
+
+		if(bindingResult.hasErrors()){
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
+		}
+		
+		User userObj =userService.findByUserId(userId);
+		
+		if(userObj==null){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
+		}
+		Boolean iskycverified =false;
+		iskycverified=(Boolean) requestMap.get("iskycverified");
+		
+		
+		if(!iskycverified){
+			return  ResponseUtil.errorResp(" iskycverified return is not verfied : "+iskycverified,HttpStatus.BAD_REQUEST);
+		}
+
+		userObj.setIsKYCVerified(iskycverified);
+		userService.save(userObj);
+		 
+		Map<String , Object> map = new HashMap<>();
+		map.put("iskycverified",ObjectMap.objectMap(userObj.getIsKYCVerified()));
+		return ResponseUtil.successResponse("Successfully modified iskycverified : ", map,HttpStatus.OK);
+	}
 
 }

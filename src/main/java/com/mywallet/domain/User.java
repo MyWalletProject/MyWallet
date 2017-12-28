@@ -34,7 +34,7 @@ public class User {
 	@Size(min=3,message="userName must be atleast 3 characters !")
 	@NotNull(message="userName cannot be null")
 	@NotEmpty(message="userName can not be empty")
-	@Column(name = "user_name",unique=true)
+	@Column(name = "user_name")
 	private String userName;
 	
 	@Pattern(regexp="^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$",message="email is not valid format")
@@ -52,6 +52,8 @@ public class User {
 	private String upLoadProfilePic; // path = "D:/mywallet/profilePicUpload/";
 	
 	private boolean isEmailVerified=false;
+	
+	private Boolean isKYCVerified=false;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "role_id", nullable = false)
@@ -72,15 +74,16 @@ public class User {
 	}
 	
 	
-    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified){
+    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Boolean isKYCVerified){
 		this.userName=userName;
 		this.email=email;
 		this.password=password;
 		this.active=isActive;
 		this.isEmailVerified=isEmailVerified;
+		this.isKYCVerified=isKYCVerified;
 	}
     
-    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray){
+    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray,Boolean isKYCVerified){
 		
 		this.userName=userName;
 		this.email=email;
@@ -90,9 +93,17 @@ public class User {
 		this.role=role;
 		this.addressArray=addressArray;
 		this.loginHistoryArray=loginHistoryArray;
+		this.isKYCVerified=isKYCVerified;
 	}
 	
-    
+
+	public Boolean getIsKYCVerified() {
+		return isKYCVerified;
+	}
+
+	public void setIsKYCVerified(Boolean isKYCVerified) {
+		this.isKYCVerified = isKYCVerified;
+	}
     
     public String getUpLoadProfilePic() {
 		return upLoadProfilePic;

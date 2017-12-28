@@ -62,6 +62,7 @@ public class RoleController {
 			return ResponseUtil.errorResp("No roleobject  is found by this roleId : ",HttpStatus.NOT_FOUND);
 		}
 		
+		
 		ArrayList<Action> actionArray = new ArrayList<Action>(); 
 		for(Integer actionId : actionIdArray){
 			Action actionObj = actionService.findByActionId(Long.parseLong(actionId+""));
@@ -99,6 +100,7 @@ public class RoleController {
 		return ResponseUtil.successResponse("added all role successfully", roleObj,HttpStatus.CREATED);
 	}
 	
+	
 	@ApiAction
 	@RequestMapping(value="/roles/{roleName}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getByRoleName(@PathVariable String roleName){
@@ -117,30 +119,6 @@ public class RoleController {
 		}
 
 		return ResponseUtil.successResponse("Role Fetched Successfully", role,HttpStatus.OK);
-	}
-	
-
-	@RequestMapping(value="/role/{roleId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> rolesDeleteByRoleId(@PathVariable Integer roleId){
-		
-		Role role = roleService.findByRoleId(roleId);
-		logger.info("Fetching Roloe with id {}", role);
-		
-         if(role == null){
-			
-			return ResponseUtil.errorResp("No role object is found",HttpStatus.NOT_FOUND);
-		}
-		
-         boolean deleteRole = false;
-         deleteRole = roleService.deleteRoleByRoleId(roleId);
-		
-         if(!deleteRole){
- 			
- 			return ResponseUtil.errorResp("No role is deleted",HttpStatus.NOT_FOUND);
- 		}
-
-		return ResponseUtil.successResponse("Role deleted Successfully", role,HttpStatus.NO_CONTENT);
-
 	}
 	
 	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -165,6 +143,9 @@ public class RoleController {
       
 		return ResponseUtil.successResponse("Successfully all roles are get : ", map, HttpStatus.OK);
 	}
+
+	
+	
 
 	@ApiAction
 	@RequestMapping(value="/role/{roleId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
