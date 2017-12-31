@@ -50,4 +50,19 @@ private final static Logger logger = Logger.getLogger(DocumentMetaService.class)
 		}
 	}
 
+	public Boolean deleteByDocumentMetaID(Integer documentMetaID){
+		logger.debug("delete by documentMeta id : ");
+		int deletedRow =0;
+		try{
+			deletedRow = documentMetaRepository.deleteByDocumentMetaID(documentMetaID);
+       System.out.println("deleted row"+ deletedRow);
+			if(deletedRow > 0)
+			   return true;
+		}catch(Exception e){
+			logger.debug("Exception occure while deleting DocumentMeta by id from database : "+e);
+			return false;	
+		}
+		return false;
+	}
+	
 }

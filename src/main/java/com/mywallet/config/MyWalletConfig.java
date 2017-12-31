@@ -27,7 +27,10 @@ public class MyWalletConfig {
 	
 	@Value("${UPLOADED_FOLDER}") 
 	String upLoadProfilePic; 
-
+	
+	@Value("${UPLOADED_URL_FOLDER}") 
+	String url; 
+	
 	public MyWalletConfig(){
 		logger.info("MyWalletConfig class Bean is created : ");
 	}
@@ -42,6 +45,10 @@ public class MyWalletConfig {
 	
 	public String[] getRoleDescription(){
 		return this.roleDescription;
+	}
+	
+	public String getURL(){
+		return this.url;
 	}
 	
 	public String[] getControllerPackages(){

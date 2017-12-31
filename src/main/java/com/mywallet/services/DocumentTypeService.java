@@ -5,9 +5,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.mywallet.domain.DocumentType;
 import com.mywallet.repository.DocumentTypeRepository;
 
+@Transactional
 @Service
 public class DocumentTypeService {
   
@@ -46,6 +49,23 @@ private final static Logger logger = Logger.getLogger(DocumentTypeService.class)
 			logger.debug("Exception occure while fetch all DocumentType from database : "+e);
 			return null;			
 		}
+	}
+	
+	public Boolean deleteByDocumentTypeID(Integer documentTypeID){
+		logger.debug("delete by documentType id : ");
+		int deletedRow =0;
+		try{
+			deletedRow = documentTypeRepository.deleteByDocumentTypeID(documentTypeID);
+       System.out.println("deleted row"+ deletedRow);
+			if(deletedRow > 0)
+			   return true;
+           
+			 
+		}catch(Exception e){
+			logger.debug("Exception occure while deleting DocumentType by id from database : "+e);
+			return false;	
+		}
+		return false;
 	}
 
 }

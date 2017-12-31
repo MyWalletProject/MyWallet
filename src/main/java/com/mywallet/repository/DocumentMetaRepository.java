@@ -8,6 +8,6 @@ import com.mywallet.domain.DocumentMeta;
 @Repository
 public interface DocumentMetaRepository extends JpaRepository<DocumentMeta, Integer>{
 
-	
+	 int deleteByDocumentMetaID(Integer documentMetaID);
 	 DocumentMeta findByDocumentMetaID(Integer documentMetaID);
 }

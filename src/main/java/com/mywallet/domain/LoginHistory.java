@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.mywallet.util.ObjectHash;
+
 @Entity
 public class LoginHistory implements Comparable<LoginHistory>{
 
@@ -28,22 +30,15 @@ public class LoginHistory implements Comparable<LoginHistory>{
 	    	
 	    }
 	    
-	    public LoginHistory(Integer loginHistoryId,String loginIP,String userAgent,Date loginTime){
-	    	this.loginHistoryId = loginHistoryId;
-			this.loginIP = loginIP;
-			this.userAgent = userAgent;
-			this.loginTime = loginTime;
-	    }
-	    
 	    public LoginHistory(String loginIP,String userAgent,Date loginTime){
 			this.loginIP = loginIP;
 			this.userAgent = userAgent;
 			this.loginTime = loginTime;
 	    }
 	    
-		public LoginHistory(Integer loginHistoryId, String loginIP, String userAgent, Date loginTime, User user) {
+	    
+		public LoginHistory( String loginIP, String userAgent, Date loginTime, User user) {
 			
-			this.loginHistoryId = loginHistoryId;
 			this.loginIP = loginIP;
 			this.userAgent = userAgent;
 			this.loginTime = loginTime;
@@ -79,6 +74,12 @@ public class LoginHistory implements Comparable<LoginHistory>{
 		}
 		public void setUser(User user) {
 			this.user = user;
+		}
+		
+		@ObjectHash
+		public String loginTime(){
+			System.out.println("show Login Time : "+this.loginTime.toString());
+			return this.loginTime.toString();
 		}
 		
 		@Override

@@ -63,7 +63,7 @@ public class UserController{
 //	private static String UPLOADED_FOLDER = "D://mywallet//profilePicUpload//";
 	
 	@ApiAction
-	@PostMapping(path="/user/uploadprofile/{userId}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(path="/user/uploadprofilepic/{userId}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> upLoadProfilePicOfUser(@Valid @PathVariable ("userId") Integer userId,@RequestParam("file") MultipartFile file){
 		logger.info("Inside upLoadProfilePicOfUser api :");
 		System.out.println(file.getOriginalFilename());
@@ -95,11 +95,39 @@ public class UserController{
 		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
 		reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
 		reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
+		
+		System.out.println("GET Login History Array ******** : "+ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
 		reMap.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
 		
 		return ResponseUtil.successResponse("SUCCESSFULLY USER UPLOAD THIER DATA : ", reMap, HttpStatus.OK);
 	}
 
+	
+	
+	@RequestMapping(value="/user/profile/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> getUsersProfileById(@PathVariable ("userId") Integer userId){
+		
+		logger.info("Inside getUsersProfileById api :");
+		
+		User userObj= userService.findByUserId(userId);
+		if(userObj==null){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
+		}
+		
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified~isKYCVerified");
+		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
+		Collections.sort(userObj.getLoginHistoryArray(), new Comparator<LoginHistory>() {
+			  public int compare(LoginHistory o1, LoginHistory o2) {
+			      return o2.getLoginTime().compareTo(o1.getLoginTime());
+			  }
+			});
+		map.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		return  ResponseUtil.successResponse("We successfully get all users profile data : ",map, HttpStatus.OK);
+	}
+
+	
 	@PostMapping(path="/user",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> createUser(@Valid @RequestBody User user,BindingResult bindingResult){
 		logger.info("Inside createUser api :");
@@ -125,7 +153,8 @@ public class UserController{
 
 		return ResponseUtil.successResponse("user created successfully", userObj,HttpStatus.CREATED);
 	}
-
+	
+	
 	@RequestMapping(value="/users",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllUsers(){
 
@@ -141,27 +170,7 @@ public class UserController{
 		return ResponseUtil.successResponse("Successfully get all users : ",userArray,HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/user/profile/{userId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> getUsersProfileById(@PathVariable ("userId") Integer userId){
-		
-		logger.info("Inside getUsersProfileById api :");
-		
-		User userObj= userService.findByUserId(userId);
-		if(userObj==null){
-			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
-		}
-		
-		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified");
-		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
-		Collections.sort(userObj.getLoginHistoryArray(), new Comparator<LoginHistory>() {
-			  public int compare(LoginHistory o1, LoginHistory o2) {
-			      return o2.getLoginTime().compareTo(o1.getLoginTime());
-			  }
-			});
-		map.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
-		
-		return  ResponseUtil.successResponse("We successfully get all users profile data : ",map, HttpStatus.OK);
-	}
+	
 	
 	@RequestMapping(value="/user/profile/{userId}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> modifyObjByUserId(@PathVariable("userId") Integer userId,@Valid @RequestBody Req_ProfileUpdate userProfileUpdate,BindingResult bindingResult){
@@ -178,27 +187,29 @@ public class UserController{
 			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
 		}
 		
-		String userName = userProfileUpdate.getUserName();
-		if(userName==null || userName.equals("") ){
-			return ResponseUtil.errorResp("user name can not be null or empty : ", HttpStatus.NOT_FOUND);
+		Address addressObj =  addressService.findByAddressId(userProfileUpdate.getAddressId());
+		if(addressObj==null){
+			return  ResponseUtil.errorResp("No address object found by this address id : ", HttpStatus.NOT_FOUND);	
 		}
 		
-		String email = userProfileUpdate.getEmail();
-		if(email==null || email.equals("") ){
-			return ResponseUtil.errorResp("user email can not be null or empty : ", HttpStatus.NOT_FOUND);
+		userObj=addressObj.getUser();
+		if(!(userId.equals(userObj.getUserId()))){
+			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
 		}
 		
-		Boolean isEmailVerified =userProfileUpdate.isEmailVerified();
+		userObj.setUserName(userProfileUpdate.getUserName());
+		addressObj.setCountry(userProfileUpdate.getCountry());
+		addressObj.setCity(userProfileUpdate.getCity());
+		addressObj.setAddressLine(userProfileUpdate.getAddressLine());
+		addressObj.setState(userProfileUpdate.getState());
+		addressObj.setStreet(userProfileUpdate.getStreet());
+		addressObj.setPincode(userProfileUpdate.getPincode());
+		addressObj.setContactNo(userProfileUpdate.getContactNo());
 		
-		List<Address> addressArray = userProfileUpdate.getAddressArray();
-		
-		userObj.setUserName(userName);
-		userObj.setEmail(email);
-		userObj.setEmailVerified(isEmailVerified);
-		userObj.setAddressArray(addressArray);
+		addressService.save(addressObj);
 		userService.save(userObj);
 		
-		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified");
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified~isKYCVerified");
 		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
 		
 		return  ResponseUtil.successResponse("successfully modified user profile data : ",map, HttpStatus.OK);
@@ -212,7 +223,6 @@ public class UserController{
 		if(userObj==null){
 			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
 		}
-		
 		
 		return ResponseUtil.successResponse("successfully get user by there role name : ", "", HttpStatus.OK);
 	}

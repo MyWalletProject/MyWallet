@@ -1,6 +1,11 @@
 package com.mywallet.controller;
 
+import static org.mockito.Matchers.anyList;
+
+import java.util.Map;
+
 import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.domain.Address;
+import com.mywallet.domain.User;
+import com.mywallet.domain.req.Req_AddressData;
 import com.mywallet.services.AddressService;
+import com.mywallet.services.UserService;
+import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
 @RestController
@@ -26,23 +35,46 @@ public class AddressController {
 	@Autowired
 	private AddressService addressService;
 	
+	@Autowired
+	private UserService userService;
+	
+	
 	public AddressController(){
 		logger.info("AddressController class bean created :");
 	}
 	
 
-	@PostMapping(path="/address", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> addAddresses(@Valid @RequestBody Address addressData,BindingResult bindingResult ){
+	@PostMapping(path="/address/{userId}", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> addAddresses(@Valid @PathVariable ("userId") Integer userId, @RequestBody Req_AddressData addressData,BindingResult bindingResult ){
 		logger.info("inside add address  api :");
+		
+		User userObj = userService.findByUserId(userId);
+		if(userObj == null){
+			return ResponseUtil.errorResp("No user object is found by this userId : ",HttpStatus.NOT_FOUND);
+		}
 		
 		if(bindingResult.hasErrors()){
 			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
 		}
-		Address addressObj = addressService.save(addressData);
-		if(addressObj == null){
-			return ResponseUtil.errorResp("no sddress is added",HttpStatus.NOT_FOUND);
-		}
-		return ResponseUtil.successResponse("added all address successfully", addressObj,HttpStatus.CREATED);
+		
+		Address addressObj = new Address(); 
+		
+		addressObj.setCountry(addressData.getCountry());
+		addressObj.setCity(addressData.getCity());
+		addressObj.setAddressLine(addressData.getAddressLine());
+		addressObj.setState(addressData.getState());
+		addressObj.setStreet(addressData.getStreet());
+		addressObj.setPincode(addressData.getPincode());
+		addressObj.setContactNo(addressData.getContactNo());
+		
+		addressObj.setUser(userObj);
+		addressService.save(addressObj);
+		
+		Map<String , Object>map= ObjectMap.objectMap(userObj);
+			  map.put("addressId", addressObj.getAddressId());
+		
+		
+		return ResponseUtil.successResponse("added all address successfully", map,HttpStatus.CREATED);
 	}
 	
 	
@@ -96,7 +128,7 @@ public class AddressController {
 		return ResponseUtil.successResponse("ADDRESS Updated Successfully", address,HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/addressDelete/{addressId}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/addressDelete/{addressId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> addressDeleteByAddressId(@PathVariable Integer addressId){
 		
 		Address address = addressService.findByAddressId(addressId);

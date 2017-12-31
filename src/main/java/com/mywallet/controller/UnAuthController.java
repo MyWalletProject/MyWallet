@@ -81,7 +81,7 @@ public class UnAuthController {
 			return ResponseUtil.errorResp("User not exist, invalid login credenstial with password or email incorrect",HttpStatus.NOT_FOUND);
 		}
 
-		Map<String,Object> data=ObjectMap.objectMap(userObj,"userId~email~active~isEmailVerified");
+		Map<String,Object> data=ObjectMap.objectMap(userObj,"userId~email~active~isEmailVerified~isKYCVerified");
 		data.put("lastLogin", userObj.getlastLogin());
 		
 		data.put("role",ObjectMap.objectMap(userObj.getRole()));

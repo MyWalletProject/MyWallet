@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.domain.DocumentType;
+import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_DocumentType;
 import com.mywallet.services.DocumentTypeService;
 import com.mywallet.util.ObjectMap;
@@ -97,5 +98,23 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 
 		return ResponseUtil.successResponse("Successfully updated DocumentType : ", map, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value="/documentType/{documentTypeId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> deleteDocumentType(@PathVariable ("documentTypeId") Integer documentTypeId){
+		logger.info("Fetching & Deleting documentType with id "+documentTypeId);
+
+		Boolean deleteID = false;
+		deleteID = documentTypeService.deleteByDocumentTypeID(documentTypeId);
+		System.out.println("kkkk"+deleteID);
+		if(!deleteID){
+			
+			return ResponseUtil.errorResp("No documentType object is deleted from database : "+deleteID, HttpStatus.NOT_FOUND);
+		}
+	    System.out.println("afttttttttttttttttt"); 
+		return ResponseUtil.successResponse("Successfully documentType object deleted from database : ",deleteID,HttpStatus.OK);
+
+	}	
+	
+	
 }
 	

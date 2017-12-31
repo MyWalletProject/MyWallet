@@ -73,7 +73,6 @@ public class User {
 		this.upLoadProfilePic=upLoadProfilePic;
 	}
 	
-	
     public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Boolean isKYCVerified){
 		this.userName=userName;
 		this.email=email;

@@ -3,15 +3,14 @@ package com.mywallet.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.domain.DocumentMeta;
+import com.mywallet.domain.DocumentType;
 import com.mywallet.domain.Role;
 import com.mywallet.domain.req.Req_DocumentMeta;
 import com.mywallet.domain.req.Req_RoleUpdate;
@@ -29,6 +29,7 @@ import com.mywallet.util.ResponseUtil;
 
 import net.minidev.json.JSONObject;
 
+@Transactional
 @RestController 
 public class DocumentMetaController {
 
@@ -107,6 +108,25 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentMetaControl
 
 		return ResponseUtil.successResponse("Successfully updated DocumentMeta : ", map, HttpStatus.OK);
 	}
+	
+	
+	@RequestMapping(value="/documentMeta/{documentMetaId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> deleteDocumentMeta(@PathVariable ("documentMetaId") Integer documentMetaId){
+		logger.info("Fetching & Deleting document meta with id "+documentMetaId);
+		
+		Boolean deleteID = false;
+		deleteID = documentMetaService.deleteByDocumentMetaID(documentMetaId);
+	
+		if(!deleteID){
+			
+			return ResponseUtil.errorResp("No document meta object is deleted from database : "+deleteID, HttpStatus.NOT_FOUND);
+		}
+	    System.out.println("tatatatatatatatata"); 
+		
+
+		return ResponseUtil.successResponse("document meta deleted Successfully",deleteID,HttpStatus.NO_CONTENT);
+
+	}	
 }
 	
 
