@@ -1,10 +1,15 @@
 package com.mywallet.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -23,6 +28,10 @@ public class Country {
 	
 	private String countryDialCode;
 	
+	
+	@OneToMany(mappedBy="country",cascade=CascadeType.ALL)
+	private List<CountryDocMapping> countryDocMappingArray = new ArrayList<CountryDocMapping>();
+	
 	public Country(){
 		
 	}
@@ -32,6 +41,25 @@ public class Country {
 		this.countryName = countryName;
 		this.countryCode = countryCode;
 		this.countryDialCode = countryDialCode;
+	}
+	
+	
+
+	public Country(String countryName, String countryCode, String countryDialCode, List<CountryDocMapping> countryDocMappingArray) {
+		
+		this.countryName = countryName;
+		this.countryCode = countryCode;
+		this.countryDialCode = countryDialCode;
+		this.countryDocMappingArray = countryDocMappingArray;
+	}
+	
+
+	public List<CountryDocMapping> getCountryDocMappingArray() {
+		return countryDocMappingArray;
+	}
+
+	public void setCountryDocMappingArray(List<CountryDocMapping> countryDocMappingArray) {
+		this.countryDocMappingArray = countryDocMappingArray;
 	}
 
 	public Integer getCountryID() {

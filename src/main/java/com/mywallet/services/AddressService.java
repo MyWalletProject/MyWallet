@@ -2,8 +2,11 @@ package com.mywallet.services;
 
 import java.util.List;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +25,18 @@ public class AddressService {
 		logger.info("AddressService class Bean is created : ");
 	}
 	
-	public Address save(Address address){
+	public Address save(Address address)throws DataIntegrityViolationException,ConstraintViolationException{
 		logger.info("inside save method of address :");
 		try{
 		return addressRepository.save(address);
+		}
+		catch(DataIntegrityViolationException dataIntegrity){
+			logger.error("error msg of DataIntegrityViolationException :"+dataIntegrity);
+			throw dataIntegrity;
+		}
+		catch(ConstraintViolationException constraint){
+			logger.error("error msg of ConstraintViolationException :"+constraint);
+			throw constraint;
 		}
 		catch(Exception exception){
 			logger.error("error msg to save address in database :"+exception);

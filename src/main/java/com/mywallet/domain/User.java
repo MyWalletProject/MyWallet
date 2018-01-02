@@ -1,7 +1,6 @@
 package com.mywallet.domain;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -21,6 +20,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+
 
 @Entity
 @Table
@@ -46,6 +46,8 @@ public class User {
 	
 	@Size(min=8,message="password must be atleast 8 characters !")
 	private String password;
+	
+	private Integer defaultAddressId; 
 	
 	private boolean active=false;
 	
@@ -82,7 +84,7 @@ public class User {
 		this.isKYCVerified=isKYCVerified;
 	}
     
-    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray,Boolean isKYCVerified){
+    public User(String userName,String email,String password,boolean isActive,boolean isEmailVerified,Role role,List<Address> addressArray,List<LoginHistory> loginHistoryArray,Boolean isKYCVerified,Integer defaultAddressId){
 		
 		this.userName=userName;
 		this.email=email;
@@ -93,8 +95,18 @@ public class User {
 		this.addressArray=addressArray;
 		this.loginHistoryArray=loginHistoryArray;
 		this.isKYCVerified=isKYCVerified;
+		this.defaultAddressId=defaultAddressId;
+
 	}
 	
+
+	public Integer getDefaultAddressId() {
+		return defaultAddressId;
+	}
+
+	public void setDefaultAddressId(Integer defaultAddressId) {
+		this.defaultAddressId = defaultAddressId;
+	}
 
 	public Boolean getIsKYCVerified() {
 		return isKYCVerified;

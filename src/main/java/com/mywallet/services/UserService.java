@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class UserService {
 	}
 	
 	
-	public User save(User user){
+	public User save(User user)throws DataIntegrityViolationException{
 		logger.info("inside create UserDB method :");
 		try{
 			return userRepository.save(user);

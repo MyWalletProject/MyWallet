@@ -63,19 +63,10 @@ public class CountryController {
 		}
 		
 		String countryName = req_CountryData.getCountryName();
-		if(countryName == null || countryName.equals("") ){
-			return ResponseUtil.errorResp("country name can not be null or empty : ",HttpStatus.BAD_REQUEST);
-		} 
 		
 		String countryCode = req_CountryData.getCountryCode();
-		if(countryCode == null ){
-			return ResponseUtil.errorResp("country code can not be null : ",HttpStatus.BAD_REQUEST);
-		} 
-		String countryDialCode = req_CountryData.getCountryDialCode();
 		
-		if(countryDialCode == null ){
-			return ResponseUtil.errorResp("country Dial Code can not be null : ",HttpStatus.BAD_REQUEST);
-		} 
+		String countryDialCode = req_CountryData.getCountryDialCode();
 		
 		Country country =new Country(countryName, countryCode, countryDialCode);
 		countryService.save(country);

@@ -1,10 +1,15 @@
 package com.mywallet.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -28,6 +33,11 @@ public class DocumentMeta {
 	private String description;
 	
 	private boolean isMandatory=false;
+	
+	
+	@OneToMany(mappedBy="documentMeta",cascade=CascadeType.ALL)
+	private List<CountryDocMapping> countryDocMappingArray = new ArrayList<CountryDocMapping>();
+	
 
 	public DocumentMeta(){
 		
@@ -38,6 +48,24 @@ public class DocumentMeta {
 		this.documentName = documentName;
 		this.description = description;
 		this.isMandatory = isMandatory;
+	}
+	
+	
+public DocumentMeta( String documentName, String description, boolean isMandatory,List<CountryDocMapping> countryDocMappingArray) {
+		
+		this.documentName = documentName;
+		this.description = description;
+		this.isMandatory = isMandatory;
+		this.countryDocMappingArray=countryDocMappingArray;
+	}
+	
+
+	public List<CountryDocMapping> getCountryDocMappingArray() {
+		return countryDocMappingArray;
+	}
+
+	public void setCountryDocMappingArray(List<CountryDocMapping> countryDocMappingArray) {
+		this.countryDocMappingArray = countryDocMappingArray;
 	}
 
 	public Integer getDocumentMetaID() {
