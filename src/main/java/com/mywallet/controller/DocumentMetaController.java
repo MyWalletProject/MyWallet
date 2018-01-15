@@ -27,7 +27,6 @@ import com.mywallet.services.DocumentMetaService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
-import net.minidev.json.JSONObject;
 
 @Transactional
 @RestController 

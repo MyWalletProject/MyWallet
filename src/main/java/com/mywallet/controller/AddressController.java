@@ -1,6 +1,5 @@
 package com.mywallet.controller;
 
-import static org.mockito.Matchers.anyList;
 
 import java.util.Map;
 
@@ -68,10 +67,10 @@ public class AddressController {
 		addressObj.setContactNo(addressData.getContactNo());
 		
 		addressObj.setUser(userObj);
-		addressService.save(addressObj);
+		addressObj = addressService.save(addressObj);
 		
-		Map<String , Object>map= ObjectMap.objectMap(userObj);
-			  map.put("addressId", addressObj.getAddressId());
+		Map<String , Object>map= ObjectMap.objectMap(addressObj);
+			
 		
 		
 		return ResponseUtil.successResponse("added all address successfully", map,HttpStatus.CREATED);

@@ -93,12 +93,12 @@ public class UserController{
 		}
 		
 		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
-		reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
-		reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
+		//reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
+		//reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
 		
 		System.out.println("GET Login History Array ******** : "+ObjectMap.objectMap(userObj.getLoginHistoryArray()));
 		
-		reMap.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		//reMap.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
 		
 		return ResponseUtil.successResponse("SUCCESSFULLY USER UPLOAD THIER DATA : ", reMap, HttpStatus.OK);
 	}
@@ -115,7 +115,7 @@ public class UserController{
 			return  ResponseUtil.errorResp("No user object found by this user id : ", HttpStatus.NOT_FOUND);	
 		}
 		
-		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified~isKYCVerified");
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified~isKYCVerified~upLoadProfilePic");
 		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
 		Collections.sort(userObj.getLoginHistoryArray(), new Comparator<LoginHistory>() {
 			  public int compare(LoginHistory o1, LoginHistory o2) {
