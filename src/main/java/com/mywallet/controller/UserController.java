@@ -100,9 +100,26 @@ public class UserController{
 			return ResponseUtil.errorResp("exception occured in file path : "+exception, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		Map<String, Object> reMap = ObjectMap.objectMap(userObj);
+	//	Map<String, Object> reMap = ObjectMap.objectMap(userObj);
+		//reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
+		//reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
 		
-		return ResponseUtil.successResponse("SUCCESSFULLY USER UPLOAD THIER DATA : ", reMap, HttpStatus.OK);
+		System.out.println("GET Login History Array ******** : "+ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		//reMap.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		Map<String , Object> map = ObjectMap.objectMap(userObj,"userId~email~userName~isEmailVerified~isKYCVerified~upLoadProfilePic");
+		map.put("addressArray", ObjectMap.objectMap(userObj.getAddressArray()));
+		Collections.sort(userObj.getLoginHistoryArray(), new Comparator<LoginHistory>() {
+			  public int compare(LoginHistory o1, LoginHistory o2) {
+			      return o2.getLoginTime().compareTo(o1.getLoginTime());
+			  }
+			});
+		map.put("loginHistoryArray",ObjectMap.objectMap(userObj.getLoginHistoryArray()));
+		
+		return  ResponseUtil.successResponse("We successfully get all users profile data : ",map, HttpStatus.OK);
+
+//		return ResponseUtil.successResponse("SUCCESSFULLY USER UPLOAD THIER DATA : ", reMap, HttpStatus.OK);
 	}
 
 	

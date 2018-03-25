@@ -71,11 +71,10 @@ public class AddressController {
 		addressObj.setContactNo(addressData.getContactNo());
 		
 		addressObj.setUser(userObj);
-		addressService.save(addressObj);
+		addressObj = addressService.save(addressObj);
 		
 		Map<String , Object>map= ObjectMap.objectMap(addressObj);
 //			  map.put("addressId", addressObj.getAddressId());
-		
 		
 		return ResponseUtil.successResponse("added all address successfully", map,HttpStatus.CREATED);
 	}

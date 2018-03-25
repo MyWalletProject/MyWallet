@@ -29,7 +29,6 @@ import com.mywallet.util.ResponseUtil;
 
 import io.swagger.annotations.ApiOperation;
 
-
 @Transactional
 @RestController 
 public class DocumentMetaController {
