@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,8 @@ import com.mywallet.services.ActionService;
 import com.mywallet.services.RoleService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class RoleController {
@@ -44,9 +47,10 @@ public class RoleController {
 		logger.info("RoleController class bean created :");
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for assign Action To Role", response = ResponseEntity.class)
 	@RequestMapping(value="/assignAction",method=RequestMethod.POST,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> assignActionToRole(@Valid @RequestBody Req_AssignActionToUser reqAssignActionToUser,BindingResult result){
+	public ResponseEntity<Object> assignActionToRole(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @RequestBody Req_AssignActionToUser reqAssignActionToUser,BindingResult result){
 		logger.info("inside assignActionToRole api :");
 		if(result.hasErrors()){
 			System.out.println("binding result : "+ result.getFieldError().getDefaultMessage());
@@ -86,8 +90,9 @@ public class RoleController {
 	
 	
 	@ApiAction
+	@ApiOperation(value = "Api for create Roles", response = ResponseEntity.class)
 	@PostMapping(path="/role", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> createRoles(@Valid @RequestBody Role roleDta,BindingResult bindingResult ){
+	public ResponseEntity<Object> createRoles(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @RequestBody Role roleDta,BindingResult bindingResult ){
 		logger.info("inside create role  api :");
 		
 		if(bindingResult.hasErrors()){
@@ -102,8 +107,9 @@ public class RoleController {
 	
 	
 	@ApiAction
+	@ApiOperation(value = "Api for get By Role Name", response = ResponseEntity.class)
 	@RequestMapping(value="/roles/{roleName}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> getByRoleName(@PathVariable String roleName){
+	public ResponseEntity<Object> getByRoleName(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable String roleName){
 
 		if(roleName == null || roleName.length() == 0){
 			return  ResponseUtil.errorResp("role name Not Null or Empty",HttpStatus.BAD_REQUEST);
@@ -121,8 +127,10 @@ public class RoleController {
 		return ResponseUtil.successResponse("Role Fetched Successfully", role,HttpStatus.OK);
 	}
 	
+	@ApiAction
+	@ApiOperation(value = "Api for get All Roles", response = ResponseEntity.class)
 	@RequestMapping(value="/roles",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> getAllRoles(){
+	public ResponseEntity<Object> getAllRoles(@RequestHeader(value="mywallet-token") String mywalletToken){
 
 		
 		List<Role> rolesObj = roleService.getAllRolefromDB();
@@ -148,8 +156,9 @@ public class RoleController {
 	
 
 	@ApiAction
+	@ApiOperation(value = "Api for role Update By Id", response = ResponseEntity.class)
 	@RequestMapping(value="/role/{roleId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> roleUpdateById(@PathVariable ("roleId") Integer roleId, @Valid @RequestBody Req_RoleUpdate role,BindingResult bindingResult){
+	public ResponseEntity<Object> roleUpdateById(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable ("roleId") Integer roleId, @Valid @RequestBody Req_RoleUpdate role,BindingResult bindingResult){
 		logger.info("inside roleUpdateById  api :");
 		
 		Role roleObj = roleService.findByRoleId(roleId);	

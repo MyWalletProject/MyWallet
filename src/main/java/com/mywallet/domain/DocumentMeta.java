@@ -21,8 +21,8 @@ public class DocumentMeta {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer documentMetaID; 
-	
-	@Pattern(regexp="[a-zA-Z]+",message="documentName only alphabets")
+//	[a-zA-Z][a-zA-Z\s]+
+	@Pattern(regexp="[ a-zA-Z ]+",message="documentName only alphabets")
 	@NotNull(message="documentName can not be null")
 	@NotEmpty(message="documentName can not be empty")
 	@Column(unique=true)

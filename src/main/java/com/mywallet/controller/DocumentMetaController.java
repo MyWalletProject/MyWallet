@@ -15,19 +15,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.DocumentMeta;
-import com.mywallet.domain.DocumentType;
-import com.mywallet.domain.Role;
 import com.mywallet.domain.req.Req_DocumentMeta;
-import com.mywallet.domain.req.Req_RoleUpdate;
 import com.mywallet.services.DocumentMetaService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
-import net.minidev.json.JSONObject;
+import io.swagger.annotations.ApiOperation;
+
 
 @Transactional
 @RestController 
@@ -39,7 +40,8 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentMetaControl
 	@Autowired
 	private  DocumentMetaService documentMetaService;
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for get All Document Meta", response = ResponseEntity.class)
 	@RequestMapping(value="/documentMetas",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllDocumentMeta(){
 
@@ -55,9 +57,10 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentMetaControl
 		return ResponseUtil.successResponse("Successfully get all documentMetaArray : ",documentMetaArray,HttpStatus.OK);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for create DocumentMeta", response = ResponseEntity.class)
 	@PostMapping(path="/documentMeta",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> createDocumentMeta(@Valid @RequestBody Req_DocumentMeta req_DocumentMeta,BindingResult result){
+	public ResponseEntity<Object> createDocumentMeta(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @RequestBody Req_DocumentMeta req_DocumentMeta,BindingResult result){
 
 		logger.info("Inside createDocumentMeta api :"+req_DocumentMeta);
 		
@@ -65,28 +68,21 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentMetaControl
 			System.out.println("binding result : "+ result.getFieldError().getDefaultMessage());
 			return ResponseUtil.errorResp(result.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
 		}
-		String documentName = req_DocumentMeta.getDocumentName();
-		if(documentName == null || documentName.equals("") ){
-			return ResponseUtil.errorResp("document Name can not be null or empty : ",HttpStatus.BAD_REQUEST);
-		} 
-		
-		String description = req_DocumentMeta.getDescription();
-		if(description == null || description.equals("")){
-			return ResponseUtil.errorResp("description  can not be null : ",HttpStatus.BAD_REQUEST);
-		} 
-		
+
 		boolean isMandatory = req_DocumentMeta.isMandatory();
 		
-		DocumentMeta documentMeta =new DocumentMeta(documentName, description, isMandatory);
+		DocumentMeta documentMeta =new DocumentMeta(req_DocumentMeta.getDocumentName(), req_DocumentMeta.getDescription(), isMandatory);
 		documentMetaService.save(documentMeta);
 		
 		Map<String,Object> map =ObjectMap.objectMap(documentMeta);
 		
-		return ResponseUtil.successResponse("Successfully post documentMeta : ",map,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully post documentMeta  ",map,HttpStatus.CREATED);
 	}
 	
+	@ApiAction
+	@ApiOperation(value = "Api for documentMeta Update By documentMeta Id", response = ResponseEntity.class)
 	@RequestMapping(value="/documentMeta/{documentMetaID}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> documentMetaUpdateById(@PathVariable ("documentMetaID") Integer documentMetaID, @Valid @RequestBody Req_DocumentMeta req_documentMeta,BindingResult bindingResult){
+	public ResponseEntity<Object> documentMetaUpdateById(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable ("documentMetaID") Integer documentMetaID, @Valid @RequestBody Req_DocumentMeta req_documentMeta,BindingResult bindingResult){
 		logger.info("inside documentMetaUpdateById  api :");
 		
 		DocumentMeta documentMetaObj = documentMetaService.findByDocumentMetaID(documentMetaID);
@@ -106,12 +102,13 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentMetaControl
 
 		Map<String, Object> map=ObjectMap.objectMap(documentMetaObj);
 
-		return ResponseUtil.successResponse("Successfully updated DocumentMeta : ", map, HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully updated DocumentMeta ", map, HttpStatus.OK);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for delete DocumentMeta by documentMetaId", response = ResponseEntity.class)
 	@RequestMapping(value="/documentMeta/{documentMetaId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> deleteDocumentMeta(@PathVariable ("documentMetaId") Integer documentMetaId){
+	public ResponseEntity<Object> deleteDocumentMeta(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable ("documentMetaId") Integer documentMetaId){
 		logger.info("Fetching & Deleting document meta with id "+documentMetaId);
 		
 		Boolean deleteID = false;

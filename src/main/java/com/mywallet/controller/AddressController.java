@@ -1,11 +1,8 @@
 package com.mywallet.controller;
 
-import static org.mockito.Matchers.anyList;
 
 import java.util.Map;
-
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +13,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.Address;
 import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_AddressData;
@@ -27,10 +27,12 @@ import com.mywallet.services.UserService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 public class AddressController {
 
-	private static final Logger logger = LoggerFactory.getLogger(RoleController.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(RoleController.class);
 
 	@Autowired
 	private AddressService addressService;
@@ -43,9 +45,10 @@ public class AddressController {
 		logger.info("AddressController class bean created :");
 	}
 	
-
+	@ApiAction
+	@ApiOperation(value = "Api for add Addresses", response = ResponseEntity.class)
 	@PostMapping(path="/address/{userId}", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> addAddresses(@Valid @PathVariable ("userId") Integer userId, @RequestBody Req_AddressData addressData,BindingResult bindingResult ){
+	public ResponseEntity<Object> addAddresses(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @PathVariable ("userId") Integer userId, @RequestBody Req_AddressData addressData,BindingResult bindingResult ){
 		logger.info("inside add address  api :");
 		
 		User userObj = userService.findByUserId(userId);
@@ -70,16 +73,17 @@ public class AddressController {
 		addressObj.setUser(userObj);
 		addressService.save(addressObj);
 		
-		Map<String , Object>map= ObjectMap.objectMap(userObj);
-			  map.put("addressId", addressObj.getAddressId());
+		Map<String , Object>map= ObjectMap.objectMap(addressObj);
+//			  map.put("addressId", addressObj.getAddressId());
 		
 		
 		return ResponseUtil.successResponse("added all address successfully", map,HttpStatus.CREATED);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for add CountryDocMapping", response = ResponseEntity.class)
 	@RequestMapping(value="/address/{addressId}",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> getByAddressId(@PathVariable Integer addressId){
+	public ResponseEntity<Object> getByAddressId(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable Integer addressId){
 
 		if(addressId == null ){
 			return ResponseUtil.errorResp("addressId Not Null ",HttpStatus.BAD_REQUEST);
@@ -98,8 +102,10 @@ public class AddressController {
 	}
 	
 	
+	@ApiAction
+	@ApiOperation(value = "Api for modify address Object By Address Id", response = ResponseEntity.class)
 	@RequestMapping(value="/addressUpdate/{addressId}", method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> modifyObjByAddressId(@PathVariable("addressId") String id,@RequestBody Address addressrData){
+	public ResponseEntity<Object> modifyObjByAddressId(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable("addressId") String id,@RequestBody Address addressrData){
 
 		logger.info("Inside MODIFY Address BY USING Address ID :");
 		
@@ -128,8 +134,11 @@ public class AddressController {
 		return ResponseUtil.successResponse("ADDRESS Updated Successfully", address,HttpStatus.OK);
 	}
 	
+	
+	@ApiAction
+	@ApiOperation(value = "Api for address Delete By Address Id", response = ResponseEntity.class)
 	@RequestMapping(value="/addressDelete/{addressId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> addressDeleteByAddressId(@PathVariable Integer addressId){
+	public ResponseEntity<Object> addressDeleteByAddressId(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable Integer addressId){
 		
 		Address address = addressService.findByAddressId(addressId);
 		logger.info("Fetching address with id {}", address);

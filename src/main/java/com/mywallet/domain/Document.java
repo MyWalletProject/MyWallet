@@ -36,6 +36,10 @@ public class Document {
 	
 	private String status;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "countryDocMapping_id")
+	private CountryDocMapping countryDocMap;
+	
 
 	public Document(){
 		
@@ -54,7 +58,23 @@ public class Document {
 		this.url = url;
 		this.user=user;
 	}
+	public Document(Date uploadedAt, Boolean isVerfied,String status, String url,User user,CountryDocMapping countryDocMap) {
+		this.uploadedAt = uploadedAt;
+		this.isVerfied = isVerfied;
+		this.status=status;
+		this.url = url;
+		this.user=user;
+		this.countryDocMap=countryDocMap;
+	}
 	
+
+	public CountryDocMapping getCountryDocMap() {
+		return countryDocMap;
+	}
+
+	public void setCountryDocMap(CountryDocMapping countryDocMap) {
+		this.countryDocMap = countryDocMap;
+	}
 
 	public String getStatus() {
 		return status;

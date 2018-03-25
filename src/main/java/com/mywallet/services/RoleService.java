@@ -4,6 +4,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Role;
@@ -38,11 +39,20 @@ public class RoleService {
 		 }
 	 }
 	 
+//	 public void adminetAllDefealtApi(){
+//		 
+//	 }
+	 
+	 
 	public Role save(Role role){
 		logger.info("inside save method of role :");
 		try{
 		return roleRepository.save(role);
 		}
+//		catch(DataIntegrityViolationException de){
+//			logger.error("role already exist in database : "+de);
+//			throw de;
+//		}
 		catch(Exception exception){
 			logger.error("Exception occur while save role in database :"+exception);
 			return null;

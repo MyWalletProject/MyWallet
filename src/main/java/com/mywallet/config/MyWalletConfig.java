@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.mywallet.security.SimpleCORSFilter;
+import com.mywallet.security.VerifyTokenFilter;
 
 
 @Configuration
@@ -15,6 +16,13 @@ public class MyWalletConfig {
 
 	
 	public final static Logger logger = Logger.getLogger(MyWalletConfig.class);
+	
+	public MyWalletConfig(){
+		logger.info("MyWalletConfig class Bean is created : ");
+	}
+	
+	@Value("${mywallet.uiurl}")
+	String urlPath;
 	
 	@Value("${mywallet.controllers}")
 	String[] controllerPackages;
@@ -31,12 +39,50 @@ public class MyWalletConfig {
 	@Value("${UPLOADED_URL_FOLDER}") 
 	String url; 
 	
-	public MyWalletConfig(){
-		logger.info("MyWalletConfig class Bean is created : ");
+
+	@Value("${mywallet.user.username}") 
+	String username;
+	@Value("${mywallet.user.email}") 
+	String email;
+	@Value("${mywallet.user.password}") 
+	String password;
+	@Value("${mywallet.user.active}") 
+	Boolean active;
+	@Value("${mywallet.user.isKYCVerified}") 
+	Boolean isKYCVerified;
+	@Value("${mywallet.user.role}") 
+	String role;
+		
+	public String getRole() {
+		return role;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public Boolean getIsKYCVerified() {
+		return isKYCVerified;
 	}
 	
 	public String getUpLoadProfilePic(){
 		return this.upLoadProfilePic;
+	}
+	
+	public String getUrlPath(){
+		return urlPath;
 	}
 	
 	public String[] getRoleName(){
@@ -63,6 +109,12 @@ public class MyWalletConfig {
 	public Filter corsfilter(){
 		logger.debug("Creating global SimpleCORSFilter");
 		return new SimpleCORSFilter();
+	}
+	
+	@Bean
+	public Filter tokenfilter(){
+		logger.debug("Creating global VerifyTokenFilter");
+		return new VerifyTokenFilter();
 	}
 	
 }

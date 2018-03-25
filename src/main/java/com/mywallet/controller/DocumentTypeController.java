@@ -14,15 +14,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.DocumentType;
-import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_DocumentType;
 import com.mywallet.services.DocumentTypeService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class DocumentTypeController {
@@ -34,6 +38,8 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 	private  DocumentTypeService documentTypeService;
 	
 	
+	@ApiAction
+	@ApiOperation(value = "Api for get All Document Type", response = ResponseEntity.class)
 	@RequestMapping(value="/documentTypes",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllDocumentType(){
 
@@ -46,12 +52,13 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 			Map<String,Object> map = ObjectMap.objectMap(DocumentTypeObj);
 			documentTypeArray.add(map);
 		}
-		return ResponseUtil.successResponse("Successfully get all documentTypes : ",documentTypeArray,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully get all documentTypes ",documentTypeArray,HttpStatus.OK);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for create Document Types", response = ResponseEntity.class)
 	@PostMapping(path="/documentType",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> createDocumentTypes(@Valid @RequestBody Req_DocumentType req_DocumentType, BindingResult result){
+	public ResponseEntity<Object> createDocumentTypes(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @RequestBody Req_DocumentType req_DocumentType, BindingResult result){
 
 		logger.info("Inside create DocumentTypes api :"+req_DocumentType);
 		
@@ -62,21 +69,21 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 		
 		String documentType = req_DocumentType.getDocumentType();
 		if(documentType == null ){
-			return ResponseUtil.errorResp("documentType can not be null : ",HttpStatus.BAD_REQUEST);
+			return ResponseUtil.errorResp("documentType object not be null : ",HttpStatus.NOT_FOUND);
 		} 
-		
 		
 		DocumentType documentTypeObj =new DocumentType(documentType);
 		documentTypeService.save(documentTypeObj);
 		
 		Map<String,Object> map =ObjectMap.objectMap(documentTypeObj);
 		
-		return ResponseUtil.successResponse("Successfully post documentType : ",map,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully create documentType ",map,HttpStatus.CREATED);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for documentType Update By documentType Id", response = ResponseEntity.class)
 	@RequestMapping(value="/documentType/{documentTypeID}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> documentTypeUpdateById(@PathVariable ("documentTypeID") Integer documentTypeID, @Valid @RequestBody  Req_DocumentType req_DocumentType,BindingResult bindingResult){
+	public ResponseEntity<Object> documentTypeUpdateById(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable ("documentTypeID") Integer documentTypeID, @Valid @RequestBody  Req_DocumentType req_DocumentType,BindingResult bindingResult){
 		logger.info("inside documentTypeUpdateById  api :");
 		
 		DocumentType documentTypeObj = documentTypeService.findByDocumentTypeID(documentTypeID);
@@ -96,11 +103,13 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 
 		Map<String, Object> map=ObjectMap.objectMap(documentTypeObj);
 
-		return ResponseUtil.successResponse("Successfully updated DocumentType : ", map, HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully updated DocumentType ", map, HttpStatus.OK);
 	}
 	
+	@ApiAction
+	@ApiOperation(value = "Api for delete DocumentType By DocumentType Id", response = ResponseEntity.class)
 	@RequestMapping(value="/documentType/{documentTypeId}",method=RequestMethod.DELETE,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> deleteDocumentType(@PathVariable ("documentTypeId") Integer documentTypeId){
+	public ResponseEntity<Object> deleteDocumentTypeByDocumentTypeId(@RequestHeader(value="mywallet-token") String mywalletToken,@PathVariable ("documentTypeId") Integer documentTypeId){
 		logger.info("Fetching & Deleting documentType with id "+documentTypeId);
 
 		Boolean deleteID = false;
@@ -111,7 +120,7 @@ private static final Logger logger = LoggerFactory.getLogger(DocumentTypeControl
 			return ResponseUtil.errorResp("No documentType object is deleted from database : "+deleteID, HttpStatus.NOT_FOUND);
 		}
 	    System.out.println("afttttttttttttttttt"); 
-		return ResponseUtil.successResponse("Successfully documentType object deleted from database : ",deleteID,HttpStatus.OK);
+		return ResponseUtil.successResponse("Successfully documentType object deleted from database ",deleteID,HttpStatus.OK);
 
 	}	
 	

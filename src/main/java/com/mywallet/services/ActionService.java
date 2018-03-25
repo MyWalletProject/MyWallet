@@ -82,6 +82,16 @@ public class ActionService {
 		}
 
 	}
+	
+	public Integer getActionByActionIdAndRoleId(Long actionId,Integer roleId){
+		logger.info("inside getActionByActionIdAndRoleId method of action service :");
+		try {
+			return actionRepository.getActionByActionIdAndRoleId(actionId,roleId);
+		} catch (Exception e) {
+			logger.error("fetching action object by ActionId And RoleId from database :"+e);
+			return null;
+		}
+	}
 
 	public Action findByHandlerMethodName(String handlerMethodName){
 		logger.info("inside findByHandlerMethodName method of action service :");

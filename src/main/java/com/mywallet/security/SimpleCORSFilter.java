@@ -18,8 +18,7 @@ import org.springframework.core.annotation.Order;
 /**
  *  SimpleCORSFilter  Enabling Global
  *  CORS Processing   at global level 
-    @author Prashank Jauhari
-*/
+ */
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SimpleCORSFilter implements Filter {
@@ -45,8 +44,8 @@ public class SimpleCORSFilter implements Filter {
 	    response.setHeader("Access-Control-Allow-Credentials", "true");
 	    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PATCH");
 	    //response.setHeader("Access-Control-Max-Age", "3600");
-	    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me,belrium-token");
-	    String token=request.getHeader("belrium-token");
+	    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me,mywallet-token");
+	    String token=request.getHeader("mywallet-token");
 	    log.debug("token in the header : "+token);
 		if(request.getMethod().equals("OPTIONS")){
 			response.setStatus(HttpServletResponse.SC_OK);

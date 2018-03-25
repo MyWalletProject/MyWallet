@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mywallet.domain.LoginHistory;
+import com.mywallet.domain.User;
 import com.mywallet.repository.LoginHistoryRepository;
 
 @Service
@@ -48,23 +49,21 @@ public class LoginHistoryService {
 		logger.info("inside find by Login History id method of LoginHistory :");
 		try {
 			return logHistoryRepository.findByLoginHistoryId(loginHistoryId);
-		} catch (Exception exception) {
-			logger.error("error occured in fetching login History object by id from database :"+exception);
+		} catch (Exception e) {
+			logger.error("error occured in fetching login History object by id from database :"+e);
 			return null;
 		}
 	}
-	
-	/*public Boolean deleteByLoginHistoryId(Integer loginHistoryId){
-		logger.info("inside delete Login History method of LoginHistory :");
-		try {
-			 logHistoryRepository.deleteByLoginHistoryId(loginHistoryId);
-			 return true;
-		} catch (Exception exception) {
-			logger.error("error occured in delete login History object by id from database :"+exception);
-			return false;
+
+	public List<LoginHistory> getUserLoginHistory(User user,int limit){
+		logger.info("inside getUserLoginHistory by user email :");
+		try{
+			logger.debug("fetching loginHistory for user with limit : ");
+		return logHistoryRepository.userLoginHistory(user.getEmail(),new PageRequest(0, limit));
+		}catch(Exception e){
+			logger.error("Exception in fetching LoginHistory : ", e);
+		    return null;
 		}
-	}*/
-	
-	
+	}
 
 }

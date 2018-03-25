@@ -16,15 +16,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mywallet.annotaion.ApiAction;
 import com.mywallet.domain.Country;
 import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_CountryData;
 import com.mywallet.services.CountryService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class CountryController {
@@ -35,7 +40,8 @@ public class CountryController {
 	private  CountryService countryService;
 	
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for get AllCountries object ", response = ResponseEntity.class)
 	@RequestMapping(value="/countries",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> getAllCountries(){
 
@@ -51,9 +57,10 @@ public class CountryController {
 		return ResponseUtil.successResponse("Successfully get all countries : ",countriesArray,HttpStatus.OK);
 	}
 	
-	
+	@ApiAction
+	@ApiOperation(value = "Api for createCountries object ", response = ResponseEntity.class)
 	@PostMapping(path="/country",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> createCountries(@Valid @RequestBody Req_CountryData req_CountryData,BindingResult result){
+	public ResponseEntity<Object> createCountries(@RequestHeader(value="mywallet-token") String mywalletToken,@Valid @RequestBody Req_CountryData req_CountryData,BindingResult result){
 
 		logger.info("Inside createCountries api :"+req_CountryData);
 		

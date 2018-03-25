@@ -8,7 +8,7 @@ import com.mywallet.domain.Address;
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Integer>{
 
-
+	Address findByCountry(String country);
 	Address findByAddressId(Integer addressId);
 	Boolean deleteAddressByAddressId(Integer addressId);
 }

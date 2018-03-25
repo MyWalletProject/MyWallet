@@ -2,6 +2,7 @@ package com.mywallet.controller;
 
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -18,20 +19,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mywallet.annotaion.ApiAction;
+import com.mywallet.config.MyWalletConfig;
 import com.mywallet.domain.Address;
+import com.mywallet.domain.EmailToken;
 import com.mywallet.domain.LoginHistory;
 import com.mywallet.domain.Role;
+import com.mywallet.domain.Token;
 import com.mywallet.domain.User;
 import com.mywallet.domain.req.Req_UserLogin;
+import com.mywallet.domain.req.Req_signupData;
 import com.mywallet.services.AddressService;
+import com.mywallet.services.EmailTokenService;
 import com.mywallet.services.LoginHistoryService;
 import com.mywallet.services.MailService;
 import com.mywallet.services.RoleService;
+import com.mywallet.services.TokenService;
 import com.mywallet.services.UserService;
 import com.mywallet.util.ObjectMap;
 import com.mywallet.util.ResponseUtil;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class UnAuthController {
@@ -52,20 +62,30 @@ public class UnAuthController {
 
 	@Autowired
 	private LoginHistoryService loginHistoryService;
-
+	
+	@Autowired
+	private TokenService tService;
+	
+	@Autowired
+	private EmailTokenService emailTokenService;
+	
 	public UnAuthController(){
 		logger.info("UnAuthController class Bean is created : ");
 	}
 
+	@Autowired
+	private MyWalletConfig myWalletConfig;
+	
 	@PostConstruct
 	public void init(){
 	}
 
 	@ApiAction
+	@ApiOperation(value = "Api for login", response = ResponseEntity.class)
 	//@RequestHeader(value="User-Agent") String userAgent,@RequestHeader(value="Accept-Language") String acceptLanguage,
 	@PostMapping(value="/login",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Object> login( @Valid @RequestBody  Req_UserLogin reqUserLogin,BindingResult result,HttpServletRequest request)  {
-		logger.info("Inside signup User api :"+reqUserLogin);
+		logger.info("Inside login User api :"+reqUserLogin);
 
 		//		 System.out.println("userAgent  : " + userAgent);
 		//		 System.out.println("loginIP : "+request.getRemoteAddr());
@@ -81,11 +101,17 @@ public class UnAuthController {
 			return ResponseUtil.errorResp("User not exist, invalid login credenstial with password or email incorrect",HttpStatus.NOT_FOUND);
 		}
 
-		Map<String,Object> data=ObjectMap.objectMap(userObj,"userId~email~active~isEmailVerified~isKYCVerified");
-		data.put("lastLogin", userObj.getlastLogin());
+		Token token = new Token(tService.generateNewToken(),userObj,new Date());
+		token=tService.save(token);
 		
+		if(token==null){
+			return ResponseUtil.errorResp("user can't login due to internal server problem : ",HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		Map<String,Object> data=ObjectMap.objectMap(userObj,"userId~email~active~isEmailVerified~isKYCVerified");
+		data.put("token", token.getToken().trim());
+		data.put("lastLogin", userObj.getlastLogin());
 		data.put("role",ObjectMap.objectMap(userObj.getRole()));
-
 
 		LoginHistory loginHistory = new LoginHistory( request.getRemoteAddr(),  request.getHeader("User-Agent"), new Date());
 
@@ -104,49 +130,23 @@ public class UnAuthController {
 	}
 
 	@ApiAction
+	@ApiOperation(value = "Api for signup by User ", response = ResponseEntity.class)
 	@PostMapping(path="/signup",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> signupUser( @RequestBody Map<String,Object> signupRequestMap){
+	public ResponseEntity<Object> signupUser(@Valid @RequestBody Req_signupData signupRequest,BindingResult bindingResult){
 
-		logger.info("Inside signup User api :"+signupRequestMap);
+		logger.info("Inside signup User api :");
 
-		String userName= (String) signupRequestMap.get("userName");
-
-		if(userName == null){
-			return ResponseUtil.errorResp("key not exist user name in request map ",HttpStatus.BAD_REQUEST);
-		}
-
-		String email=(String) signupRequestMap.get("email");
-		if(email == null){
-			return ResponseUtil.errorResp("key not exist email in request map ",HttpStatus.BAD_REQUEST);
+		if(bindingResult.hasErrors()){
+			return ResponseUtil.errorResp(bindingResult.getFieldError().getDefaultMessage(),HttpStatus.BAD_REQUEST);
 		}
 		
-		String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
-		regex.matches("email");
-
-		String password=(String) signupRequestMap.get("password");
-
-		if(password == null){
-			return ResponseUtil.errorResp("key not exist password in request map ",HttpStatus.BAD_REQUEST);
-		}
-
-		String roleName=(String) signupRequestMap.get("roleName");
-
-		logger.info("getting roleName User ---- :"+roleName);
-
-		if(roleName == null || roleName.equals("")){
-			return ResponseUtil.errorResp("key not exist role name in request map ",HttpStatus.BAD_REQUEST);
-		}
-
-		Role roleObj = roleService.findByRoleName(roleName);
-
-		logger.info("getting role Object ;;;;;;..... :"+roleObj);
+		Role roleObj = roleService.findByRoleName(signupRequest.getRoleName());
 
 		if(roleObj == null){
 			return ResponseUtil.errorResp("No role is found by this key roleName:",HttpStatus.NOT_FOUND);
 		}
 
-		User userObj = userService.findByEmail(email);
-		//		userService.findByRole(roleObj);
+		User userObj = userService.findByEmail(signupRequest.getEmail());
 
 		logger.info(" user Object is null ---"+userObj);
 
@@ -156,45 +156,78 @@ public class UnAuthController {
 
 		logger.info("getting user Object"+userObj);
 
-		User newUser = new User(userName,email,password,true,false,false);
+		User newUser = new User(signupRequest.getUserName(),signupRequest.getEmail(),signupRequest.getPassword(),true,false,false,new Date(),new Date());
 		newUser.setRole(roleObj);
+		
 		newUser = userService.save(newUser);
+		if(newUser== null){
+			return ResponseUtil.errorResp("Exception occured in save User object  ",HttpStatus.NOT_FOUND);
+	      } 
 
 		logger.info("getting user new Object"+newUser);
 
-		String country=(String) signupRequestMap.get("country");
-		if(country == null){
-			return ResponseUtil.errorResp("key not exist country in request map ",HttpStatus.BAD_REQUEST);
+		Address addressObj = new Address(signupRequest.getCountry(),newUser);
+		
+		addressObj = addressService.save(addressObj);
+		
+		if(addressObj ==null) {
+			return ResponseUtil.errorResp("Exception occured in save Address object ",HttpStatus.NOT_FOUND);
 		}
 
-		logger.info("getting country in address"+country);
-
-		Address addressObj = new Address(country,newUser);
-		logger.info("address Object ::::::"+addressObj);
-
-		addressObj = addressService.save(addressObj);
-
-		mailService.sendMail(email, "Successfully registered", "you are successfully registed in mywallet");
-
+		newUser.setDefaultAddressId(addressObj.getAddressId());
 		newUser.getAddressArray().add(addressObj);
+		userService.save(newUser);
 
 		System.out.println("length is :"+newUser.getAddressArray().size());
-
-		if(addressObj == null) {
-			return ResponseUtil.errorResp("address object not saved",HttpStatus.NOT_FOUND);
+		
+		
+		EmailToken emailTokenObj = new EmailToken(emailTokenService.generateNewToken(), newUser,new Date(), false);
+		emailTokenObj = emailTokenService.save(emailTokenObj);
+		
+		if(emailTokenObj==null){
+			return ResponseUtil.errorResp("user can't sigin due to internal server problem : ",HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		
+		String tokenMailBody = "You are successfully registed in mywallet \n"+myWalletConfig.getUrlPath()+"emailVerify?emailToken="+emailTokenService.generateNewToken();
+		System.out.println("***********tokenMailBody********"+tokenMailBody);
+		mailService.sendMail("hashuv06@gmail.com","harshu@143",signupRequest.getEmail(), "Registration Confirmation.", tokenMailBody);
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>");
 
 		mailService.userRegisterMail(newUser);
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<");
+
 		Map<String,Object> reMap = ObjectMap.objectMap(newUser);
 		reMap.put("addressArray", ObjectMap.objectMap(newUser.getAddressArray()));
 		reMap.put("role",ObjectMap.objectMap(newUser.getRole()));
 
 		return ResponseUtil.successResponse("User succesfully registed in mywallet",reMap,HttpStatus.OK);
 	}
+	
+	@ApiAction
+	@ApiOperation(value = "Api for email Verify By User", response = ResponseEntity.class)
+	@RequestMapping(value="/user/emailVerify",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Object> emailVerifyByUser(@RequestParam("token") String token,HttpServletRequest request){
+		logger.info("inside email Verify By User api : "+token);
+        
+		Locale locale = request.getLocale();
+		
+		EmailToken emailTokenObj = emailTokenService.findByEmailToken(token);
+		if (emailTokenObj == null) {
+			return ResponseUtil.errorResp("auth message invalidToken ",HttpStatus.BAD_REQUEST);
+	    }
+		
+		User userObj=emailTokenObj.getUser();
+		
+		emailTokenObj.setIsExpired(true); 
+		emailTokenObj.getUser().setEmailVerified(true);
+		emailTokenService.saveRegisteredUser(userObj);
+		return ResponseUtil.successResponse("User email Verify successfully by user ","",HttpStatus.OK);
+	}
 
 	@ApiAction
+	@ApiOperation(value = "Api for password Update By User Id", response = ResponseEntity.class)
 	@RequestMapping(value="/password/{userId}",method=RequestMethod.PATCH,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Object> passwordUpdateByUser(@PathVariable ("userId") Integer id,@RequestBody Map<String, String> requestMap){
+	public ResponseEntity<Object> passwordUpdateByUserId(@PathVariable ("userId") Integer id,@RequestBody Map<String, String> requestMap){
 		logger.info("inside passwordResetByUser api : "+requestMap);
 
 		String oldPassword =  requestMap.get("oldPassword");
@@ -213,7 +246,7 @@ public class UnAuthController {
 		if(oldPassword.equals(newPassword)){
 			return ResponseUtil.errorResp("oop's...old password matches to new password.Please change the new password :",HttpStatus.OK);
 		}
-		
+
 		User userObj =userService.findByUserId(id);
 
 		logger.info("getting user object by id :"+userObj);
@@ -240,6 +273,7 @@ public class UnAuthController {
 		reMap.put("addressArray",ObjectMap.objectMap(userObj.getAddressArray()));
 		reMap.put("role", ObjectMap.objectMap(userObj.getRole()));
 
-		return ResponseUtil.successResponse("user new password updated successfully by user : ", reMap,HttpStatus.OK);
+		return ResponseUtil.successResponse("user new password updated successfully by user ", reMap,HttpStatus.OK);
 	}
+	
 }
